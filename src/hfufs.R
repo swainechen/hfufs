@@ -63,7 +63,7 @@ lstrobecks <- function(n, k, theta) {
   return(S)
 }
 
-lfufs <- function(n, k, theta) {
+hfufs <- function(n, k, theta) {
   too_small <- 0.1
   # Strobeck's S is prob of k alleles or fewer, Fu's Sp is k alleles or greater
   # if k == 0, then Strobeck's S is 0

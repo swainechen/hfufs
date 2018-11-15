@@ -1,11 +1,23 @@
-#
-# Swaine Chen; swainechen@gmail.com
-# https://github.com/swainechen/hfufs
-# MIT License
-#
+#' Calculate the logarithm of a Stirling number of the first kind
+#'
+#' Returns an approximation of the logarithm of a Stirling number of the first
+#' kind. This is useful because for larger parameter values, these Stirling
+#' numbers can overflow the floating point range.
+#'
+#' @param n The first parameter (subscript in the notation used in Temme 1993)
+#' @param m The second parameter (superscript in parentheses in the notation
+#' used in Temme 1993)
+#' @return The logarithm of the Stirling number of the first kind.
+#' @references
+#' Temme, N.M. (1993) Studies in Applied Mathematics 89:233-243 (Equation 3.5)
+#'
+#' @examples
+#' n <- 10
+#' m <- 5
+#' exp(lstirling(n, m))
+#' # 267854.5
+#'
 lstirling <- function(n,m) {
-  # use approximation from http://oai.cwi.nl/oai/asset/2304/2304A.pdf
-  # this is Temme 1993 Studies in Applied Mathematics 89:233-243, equation (3.5)
   # special cases first
   if (m < 0 | n < 0 | n < m) {
     # we really need everything to be positive to get a value

@@ -7,13 +7,16 @@ hstrobecks <- function(n, k, theta) {
   # Strobeck's S is prob of k alleles or fewer, Fu's Sp is k alleles or greater
   # if k == 0, then Strobeck's S is 0
   # if k == 1, then Strobeck's S is 0 if theta > 0, 1 if theta == 0
-  # Strobeck's S should be 1 if theta is 0, 0 if k == 1 and theta > 0
+  # Strobeck's S should be 1 if theta is 0 and k >= 1
   if(k <= 1) {
     if (k == 1 & theta == 0) {
       return(1)
     } else {
       return(0)
     }
+  }
+  if(theta == 0) {
+    return(1)
   }
   # if n is small enough, then just calculate directly
   if(n <= 30) {

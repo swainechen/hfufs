@@ -1,8 +1,36 @@
+#' Calculate Fu's Fs for arbitrary parameters
 #'
-# Swaine Chen; swainechen@gmail.com
-# https://github.com/swainechen/hfufs
-# MIT License
-#
+#' Returns Fu's Fs statistic.
+#'
+#' Fu's Fs is a population genetics statistic that is useful for detecting
+#' loci that are responsible for population expansion, for example. Fu's Fs
+#' can be formulated as a calculation that involves Stirling numbers of the
+#' first kind. These can get large very quickly and exceed the floating point
+#' range for modern genomic data sets.
+#'
+#' `hfufs` calculates Fu's Fs either directly, if the numbers are small
+#' enough, or using a logarithmic estimator for Stirling numbers implemented
+#' in the lstirling function.
+#'
+#' @param n The number of total sequences/individuals
+#' @param k The number of unique alleles
+#' @param theta The average pairwise nucleotide divergence
+#' @return Fu's Fs
+#' @seealso `hstrobecks` for a Strobeck's S calculator and `lstirling` for
+#' the Stirling number estimator
+#' @export
+#' @references
+#' Fu, Y.X. (1997) Statistical Tests of Neutrality of Mutations Against
+#' Population Growth, Hitchhiking and Background Selection. Genetics
+#' 147:915-25
+#'
+#' @examples
+#' n <- 100
+#' k <- 30
+#' theta <- 12.345
+#' hfufs(n, k, theta)
+#' # -0.7374915
+#'
 hfufs <- function(n, k, theta) {
   # this value is pretty arbitrary, but it leaves things accurate when
   # calculate logit (Sp) (i.e. Fu's Fs).

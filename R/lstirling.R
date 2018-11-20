@@ -8,6 +8,8 @@
 #' @param m The second parameter (superscript in parentheses in the notation
 #' used in Temme 1993)
 #' @return The logarithm of the Stirling number of the first kind.
+#' @seealso `stirmat` for a direct Stirling number calculator
+#' @export
 #' @references
 #' Temme, N.M. (1993) Studies in Applied Mathematics 89:233-243 (Equation 3.5)
 #'

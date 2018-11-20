@@ -39,8 +39,8 @@ hfufs(n, k, theta)
 
 }
 \references{
-Fu, Y.X. (1997) `Statistical Tests of Neutrality of Mutations Against
-Population Growth, Hitchhiking and Background Selection`. Genetics
+Fu, Y.X. (1997) Statistical Tests of Neutrality of Mutations Against
+Population Growth, Hitchhiking and Background Selection. Genetics
 147:915-25
 }
 \seealso{

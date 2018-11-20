@@ -30,3 +30,6 @@ exp(lstirling(n, m))
 \references{
 Temme, N.M. (1993) Studies in Applied Mathematics 89:233-243 (Equation 3.5)
 }
+\seealso{
+`stirmat` for a direct Stirling number calculator
+}

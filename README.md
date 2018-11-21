@@ -12,7 +12,7 @@ Fu's Fs requires three parameters:
 3. theta - average pairwise differences between different individuals
 These parameters can be calculated from an alignment or other representation of sequence alleles using many different software programs, such as PopGenome (https://CRAN.R-project.org/package=PopGenome).
 
-## Installation
+## Installation (in R)
 Make sure your library paths are all set for R, and that you have write access to them.
 ```
 library(devtools)

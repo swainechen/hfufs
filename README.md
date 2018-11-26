@@ -19,11 +19,8 @@ library(devtools)
 devtools::install_github("swainechen/hfufs")
 
 n <- 100
-33
 k <- 30
-34
 theta <- 12.345
-35
 hfufs(n, k, theta)
 # -0.7374915
 ```

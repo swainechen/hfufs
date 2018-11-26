@@ -17,7 +17,21 @@ Make sure your library paths are all set for R, and that you have write access t
 ```
 library(devtools)
 devtools::install_github("swainechen/hfufs")
+
+n <- 100
+33
+k <- 30
+34
+theta <- 12.345
+35
+hfufs(n, k, theta)
+# -0.7374915
 ```
+
+## Under Active Construction
+I'm in the process of converting this to an R package for convenience. If you are reviewing the manuscript for this and need access to the original code, you can find it here (you can wget this):
+https://raw.githubusercontent.com/swainechen/hfufs/c247bbc3fc91ad240e5b4fb91fd9256357ca5516/src/hfufs.R
+Then the following "Basic Usage" will work.
 
 ## Basic Usage (in R)
 ```
@@ -28,8 +42,3 @@ theta <- 12.345
 hfufs(n, k, theta)
 # -0.7374915
 ```
-
-## Under Active Construction
-I'm in the process of converting this to an R package for convenience. If you are reviewing the manuscript for this and need access to the original code, you can find it here (you can wget this):
-https://raw.githubusercontent.com/swainechen/hfufs/c247bbc3fc91ad240e5b4fb91fd9256357ca5516/src/hfufs.R
-Then the above "Basic Usage" will work.

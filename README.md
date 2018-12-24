@@ -17,7 +17,9 @@ Make sure your library paths are all set for R, and that you have write access t
 ```
 library(devtools)
 devtools::install_github("swainechen/hfufs")
-
+```
+## Basic usage
+```
 n <- 100
 k <- 30
 theta <- 12.345
@@ -26,4 +28,5 @@ hfufs(n, k, theta)
 ```
 
 ## Under Active Construction
-I'm in the process of making this easier to use and integrate with PopGenome, so please check back often!
+This works now if you can calculate n, k, and theta. There are quite a few other packages to do this from an alignment. I'm in the process of making this package and set of functions easier to use and integrate with one of these packages (PopGenome), so please check back often!
+In addition, the Stirling number estimator is done and should work well for non-population genetics applications also!

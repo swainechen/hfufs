@@ -29,8 +29,8 @@ afufs(n, k, theta)
 # -0.7374915
 ```
 
-## Under Active Construction
-This works now if you can calculate n, k, and theta. There are quite a few other packages to do this from an alignment. One of these is PopGenome (https://cran.r-project.org/web/packages/PopGenome/index.html). If you have that package installed, you can simply do:
+## More practical usage
+The hfufs/afufs functions require you to calculate n, k, and theta from your data yourself. There are quite a few other packages to do this from an alignment. One of these is PopGenome (https://cran.r-project.org/web/packages/PopGenome/index.html). If you have that package installed, you can simply do:
 ```
 library(PopGenome)
 library(devtools)

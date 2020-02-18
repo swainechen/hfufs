@@ -6,6 +6,8 @@ Calculation of Fu's Fs can involve Stirling numbers of the first kind, which gro
 
 hfufs accounts for floating point overflow and underflow issues in the calculation of Fu's Fs, enabling calculation on very large alignments, even those that have extreme positive or negative values of Fu's Fs.
 
+An additional improvement is to do a single term estimate - hfufs uses a Stirling number estimator for each term of the sum for calculating Fu's Fs. Nico Temme developed a single asymptotic estimator that can be used to directly calculate the appropriate sum, increasing both accuracy and speed. This is implemented in the afufs function and is the recommended way to calculate Fu's Fs.
+
 Fu's Fs requires three parameters:
 1. n - number of individuals sampled
 2. k - number of different alleles/haplotypes observed
@@ -23,10 +25,20 @@ devtools::install_github("swainechen/hfufs")
 n <- 100
 k <- 30
 theta <- 12.345
-hfufs(n, k, theta)
+afufs(n, k, theta)
 # -0.7374915
 ```
 
 ## Under Active Construction
-This works now if you can calculate n, k, and theta. There are quite a few other packages to do this from an alignment. I'm in the process of making this package and set of functions easier to use and integrate with one of these packages (PopGenome), so please check back often!
-In addition, the Stirling number estimator is done and should work well for non-population genetics applications also!
+This works now if you can calculate n, k, and theta. There are quite a few other packages to do this from an alignment. One of these is PopGenome (https://cran.r-project.org/web/packages/PopGenome/index.html). If you have that package installed, you can simply do:
+```
+library(PopGenome)
+library(devtools)
+devtools::install_github("swainechen/hfufs")
+fasta_file <- "/path/to/aligned.fasta"
+pg.object <- hf.readData(fasta_file)
+pg.dataframe <- hf.alignment.stats(pg.object)
+```
+This interface is a bit easier for reading in single fasta files. The pg.object variable will still hold all the PopGenome information, and parts will be extracted for convenience into pg.dataframe.
+
+In addition, the Stirling number estimator and the actual hfufs/afufs functions are independent and should work well for non-population genetics applications also!

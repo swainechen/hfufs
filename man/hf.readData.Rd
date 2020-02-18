@@ -8,11 +8,23 @@ hf.readData(fasta_file)
 }
 \description{
 Reads a given fasta file into a PopGenome GENOME object.
+We assume that the fasta file is aligned. This will not do anything
+related to associated gff files.
+This uses the defaults of the PopGenome::readData function:
+  populations = FALSE
+  format = "fasta"
+For other information, see the PopGenome documentation.
+If you need something more complex than a simple fasta file loaded, it is
+recommended to use the PopGenome functions directly.
+}
+\details{
+Note this will load the PopGenome package if needed.
 }
 \examples{
 \dontrun {
 fasta_file <- "name_of_aligned.fasta"
-hf.readData(fasta_file)
+pg.object <- hf.readData(fasta_file)
+pg.dataframe <- hf.alignment.stats(pg.object)
 }
 
 }

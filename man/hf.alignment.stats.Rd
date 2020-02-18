@@ -4,9 +4,24 @@
 \alias{hf.alignment.stats}
 \title{Calculate population genetics statistics from a PopGenome GENOME object}
 \usage{
-hf.alignment.stats(x, slide = F, width = 1000, step = 500)
+hf.alignment.stats(go, slide = F, window = 1000, step = 500)
 }
 \description{
 Takes in a PopGenome GENOME object (from PopGenome::readData) and
-calculates basic population genetics statistics. Uses hfufs if needed.
+calculates basic population genetics statistics. Uses afufs if needed.
+Returns a data frame with most of the statistics. The original GENOME
+object is modified as normal by the PopGenome functions.
+}
+\details{
+Runs these functions from PopGenome:
+  diversity.stats
+  neutrality.stats
+}
+\examples{
+\dontrun {
+fasta_file <- "name_of_aligned.fasta"
+pg.object <- hf.readData(fasta_file)
+pg.dataframe <- hf.alignment.stats(pg.object)
+}
+
 }

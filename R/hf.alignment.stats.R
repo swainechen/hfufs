@@ -1,7 +1,7 @@
 #' Calculate population genetics statistics from a PopGenome GENOME object
 #'
 #' Takes in a PopGenome GENOME object (from PopGenome::readData) and
-#' calculates basic population genetics statistics. Uses hfufs if needed.
+#' calculates basic population genetics statistics. Uses afufs if needed.
 #'
 #' @export
 #'
@@ -31,7 +31,7 @@ hf.alignment.stats <- function(x, slide=F, width=1000, step=500) {
       n$n.haplotypes <- as.numeric(templist)
       n$n.singleton.haplotypes <- as.numeric(lapply(h, function(x) length(which(x==1))))
       for(i in which(is.nan(n$Fu.F_S))) {
-        n$Fu.F_S[i] <- hfufs(n$n.sequences[i], n$n.haplotypes[i], n$pi[i])
+        n$Fu.F_S[i] <- afufs(n$n.sequences[i], n$n.haplotypes[i], n$pi[i])
       }
     } else {
       d <- diversity.stats(d, pi=T)
@@ -44,7 +44,7 @@ hf.alignment.stats <- function(x, slide=F, width=1000, step=500) {
       n$n.haplotypes <- ncol(h)
       n$n.singleton.haplotypes <- length(which(h == 1))
       n$n.consensus.haplotypes <- max(h)
-      if(is.nan(n$Fu.F_S)) n$Fu.F_S <- hfufs(n$n.sequences, n$n.haplotypes, n$pi)
+      if(is.nan(n$Fu.F_S)) n$Fu.F_S <- afufs(n$n.sequences, n$n.haplotypes, n$pi)
     }
     return(n)
   }

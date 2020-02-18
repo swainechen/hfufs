@@ -26,7 +26,7 @@ n <- 100
 k <- 30
 theta <- 12.345
 afufs(n, k, theta)
-# -0.7374915
+# -0.7368616
 ```
 
 ## More practical usage
@@ -35,6 +35,7 @@ The hfufs/afufs functions require you to calculate n, k, and theta from your dat
 library(PopGenome)
 library(devtools)
 devtools::install_github("swainechen/hfufs")
+library(hfufs)
 fasta_file <- "/path/to/aligned.fasta"
 pg.object <- hf.readData(fasta_file)
 pg.dataframe <- hf.alignment.stats(pg.object)

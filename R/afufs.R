@@ -26,7 +26,7 @@
 #' k <- 30
 #' theta <- 12.345
 #' afufs(n, k, theta)
-#' # -0.73768616
+#' # -0.7368616
 #'
 afufs <- function(n, k, theta) {
   # Strobeck's S is prob of k alleles or fewer, Fu's Sp is k alleles or greater

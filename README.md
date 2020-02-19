@@ -1,5 +1,5 @@
 # hfufs
-## Hybrid Fu's Fs calculator
+## Improved Fu's Fs calculators for large data sets
 
 Fu's Fs is a population genetics statistic that may be useful for detecting population expansion due to appearance of a recent mutation conferring higher fitness.
 Calculation of Fu's Fs can involve Stirling numbers of the first kind, which grow very large very fast, leading to potential overflow problems. It also involves a logit transformation which raises possible floating point underflow issues.

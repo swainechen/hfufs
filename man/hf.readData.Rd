@@ -21,7 +21,7 @@ recommended to use the PopGenome functions directly.
 Note this will load the PopGenome package if needed.
 }
 \examples{
-\dontrun {
+\dontrun{
 fasta_file <- "name_of_aligned.fasta"
 pg.object <- hf.readData(fasta_file)
 pg.dataframe <- hf.alignment.stats(pg.object)

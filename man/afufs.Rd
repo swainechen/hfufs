@@ -35,7 +35,7 @@ n <- 100
 k <- 30
 theta <- 12.345
 afufs(n, k, theta)
-# -0.73768616
+# -0.7368616
 
 }
 \references{

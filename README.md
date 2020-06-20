@@ -38,8 +38,8 @@ devtools::install_github("swainechen/hfufs")
 library(hfufs)
 fasta_file <- "/path/to/aligned.fasta"
 pg.object <- hf.readData(fasta_file)
-pg.dataframe <- hf.alignment.stats(pg.object)
+pg.dataframe <- hf.alignment.stats(pg.object, slide=T, window=1000, step=500)
 ```
-This interface is a bit easier for reading in single fasta files. The pg.object variable will still hold all the PopGenome information, and parts will be extracted for convenience into pg.dataframe.
+This interface is a bit easier for reading in single fasta files. The pg.object variable will still hold all the PopGenome information, and parts will be extracted for convenience into pg.dataframe. The hf.alignment.stats function will apply a sliding window to your data if you like with specified window and step size.
 
 In addition, the Stirling number estimator and the actual hfufs/afufs functions are independent and should work well for non-population genetics applications also!

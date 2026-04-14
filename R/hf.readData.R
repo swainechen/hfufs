@@ -39,7 +39,8 @@ hf.readData <- function(fasta_file) {
 
     if (file_checks$class == "gzfile") {
       hf.tempfile <- sub(".gz$", "", hf.tempfile)
-      system(paste("zcat ", fasta_file, " > ", hf.tempfile))
+      # Fix command injection vulnerability by properly escaping shell arguments
+      system(paste("zcat", shQuote(fasta_file), ">", shQuote(hf.tempfile)))
     } else {
       file.symlink(fasta_file, hf.tempfile)
     }

@@ -34,13 +34,14 @@ hf.readData <- function(fasta_file) {
     while (file.exists(hf.tempdir) | dir.exists(hf.tempdir)) {
       hf.tempdir <- tempfile(tmpdir=tempdir(check=T))
     }
-    dir.create(hf.tempdir)
+    dir.create(hf.tempdir, mode = "0700")
     hf.tempfile <- file.path(hf.tempdir, basename(fasta_file))
 
-    if (file_checks$class == "gzfile") {
+    if (grepl("\\.gz$", fasta_file, ignore.case = TRUE)) {
       hf.tempfile <- sub(".gz$", "", hf.tempfile)
-      # Fix command injection vulnerability by properly escaping shell arguments
-      system(paste("zcat", shQuote(fasta_file), ">", shQuote(hf.tempfile)))
+      # Use system2 for more secure command execution, avoiding shell interpretation
+      # and protecting against option injection with the '--' flag.
+      system2("zcat", args = c("--", fasta_file), stdout = hf.tempfile)
     } else {
       file.symlink(fasta_file, hf.tempfile)
     }

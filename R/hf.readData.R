@@ -27,18 +27,24 @@ hf.readData <- function(fasta_file) {
     stop("fasta_file must be a single character string")
   }
 
-  if (file.exists(fasta_file) && !dir.exists(fasta_file)) {
+  # Use utils::file_test("-f", ...) to ensure it is a regular file.
+  # This is more robust than file.exists() as it excludes special files like FIFOs
+  # that could cause the process to block, while remaining portable across platforms.
+  if (utils::file_test("-f", fasta_file)) {
     fasta_file <- normalizePath(fasta_file)
 
     # readData wants a clean directory with sequences
-    # get a new subdir in case there are other temp files already
-    hf.tempdir <- tempfile(tmpdir = tempdir(check = TRUE))
+    # get a new subdir in case there are other temp files already.
+    # We check the R version as tempdir(check = TRUE) was introduced in R 4.0.0.
+    hf.tempdir_root <- if (getRversion() >= "4.0.0") tempdir(check = TRUE) else tempdir()
+    hf.tempdir <- tempfile(tmpdir = hf.tempdir_root)
     while (file.exists(hf.tempdir) || dir.exists(hf.tempdir)) {
-      hf.tempdir <- tempfile(tmpdir = tempdir(check = TRUE))
+      hf.tempdir <- tempfile(tmpdir = hf.tempdir_root)
     }
     dir.create(hf.tempdir, mode = "0700")
-    # Ensure temporary directory is cleaned up on exit to prevent resource leaks
-    on.exit(unlink(hf.tempdir, recursive = TRUE))
+    # Ensure temporary directory is cleaned up on exit to prevent resource leaks.
+    # We use add = TRUE to avoid overwriting any existing exit handlers.
+    on.exit(unlink(hf.tempdir, recursive = TRUE), add = TRUE)
 
     hf.tempfile <- file.path(hf.tempdir, basename(fasta_file))
 

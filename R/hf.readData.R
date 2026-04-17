@@ -23,39 +23,49 @@
 #' }
 #'
 hf.readData <- function(fasta_file) {
-  fasta_file <- normalizePath(fasta_file)
-  if (file.exists(fasta_file)) {
-    filehandle <- file(fasta_file)
-    file_checks <- summary(filehandle)
+  if (!is.character(fasta_file) || length(fasta_file) != 1) {
+    stop("fasta_file must be a single character string")
+  }
+
+  if (file.exists(fasta_file) && !dir.exists(fasta_file)) {
+    fasta_file <- normalizePath(fasta_file)
 
     # readData wants a clean directory with sequences
     # get a new subdir in case there are other temp files already
-    hf.tempdir <- tempfile(tmpdir=tempdir(check=T))
-    while (file.exists(hf.tempdir) | dir.exists(hf.tempdir)) {
-      hf.tempdir <- tempfile(tmpdir=tempdir(check=T))
+    hf.tempdir <- tempfile(tmpdir = tempdir(check = TRUE))
+    while (file.exists(hf.tempdir) || dir.exists(hf.tempdir)) {
+      hf.tempdir <- tempfile(tmpdir = tempdir(check = TRUE))
     }
     dir.create(hf.tempdir, mode = "0700")
+    # Ensure temporary directory is cleaned up on exit to prevent resource leaks
+    on.exit(unlink(hf.tempdir, recursive = TRUE))
+
     hf.tempfile <- file.path(hf.tempdir, basename(fasta_file))
 
     if (grepl("\\.gz$", fasta_file, ignore.case = TRUE)) {
-      hf.tempfile <- sub(".gz$", "", hf.tempfile)
+      hf.tempfile <- sub("\\.gz$", "", hf.tempfile, ignore.case = TRUE)
       # Use system2 for more secure command execution, avoiding shell interpretation
       # and protecting against option injection with the '--' flag.
-      system2("zcat", args = c("--", fasta_file), stdout = hf.tempfile)
+      zcat_res <- system2("zcat", args = c("--", fasta_file), stdout = hf.tempfile)
+      if (zcat_res != 0) {
+        stop("Failed to decompress fasta file using zcat")
+      }
     } else {
       file.symlink(fasta_file, hf.tempfile)
     }
-    close(filehandle)
 
-    return <- tryCatch (
-      { PopGenome::readData(hf.tempdir) },
-      error = function(e) { warning("Error running PopGenome::readData - maybe check if PopGenome is installed") }
+    res <- tryCatch(
+      {
+        PopGenome::readData(hf.tempdir)
+      },
+      error = function(e) {
+        warning("Error running PopGenome::readData - maybe check if PopGenome is installed")
+        return(NULL)
+      }
     )
 
-    unlink(hf.tempfile)
-    # leave this here, should be empty though
-    # unlink(hf.tempdir, recursive = T)
-
-    return(return)
+    return(res)
+  } else {
+    stop(paste0("fasta_file '", fasta_file, "' does not exist or is a directory"))
   }
 }

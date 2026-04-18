@@ -8,4 +8,9 @@ SENTINEL'S JOURNAL - CRITICAL LEARNINGS ONLY
 ## 2024-05-24 - Resource Exhaustion and Input Validation in R
 **Vulnerability:** Denial of Service via temporary directory leakage and potential R process blocking on special files.
 **Learning:** Failing to clean up temporary directories in R (especially those with restricted permissions) can lead to disk space and inode exhaustion. Using `file()` on untrusted paths can block the R process indefinitely if the path points to a named pipe (FIFO).
-**Prevention:** Always use `on.exit(unlink(hf.tempdir, recursive = TRUE))` immediately after directory creation to guarantee cleanup. Validate inputs to ensure they are single character strings and regular files (not directories or special files) before opening connections or performing operations.
+**Prevention:** Always use `on.exit(unlink(hf.tempdir, recursive = TRUE), add = TRUE)` immediately after directory creation to guarantee cleanup without overwriting existing handlers. Validate inputs to ensure they are single character strings and regular files (not directories or special files) before opening connections or performing operations.
+
+## 2025-05-15 - Portability and Security Theater in R System Calls
+**Vulnerability:** Use of non-portable system calls for file validation when native, safer alternatives exist.
+**Learning:** Attempting to use `system2("test", args = c("-f", path))` for file validation introduces a platform dependency (POSIX) that breaks R package portability (e.g., on Windows) and adds unnecessary complexity.
+**Prevention:** Use `utils::file_test("-f", path)` for robust, portable validation that a path is a regular file. This avoids blocking on FIFOs while maintaining cross-platform compatibility and avoiding the risks associated with external system calls.

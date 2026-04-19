@@ -41,9 +41,12 @@ hf.readData <- function(fasta_file) {
     while (file.exists(hf.tempdir) || dir.exists(hf.tempdir)) {
       hf.tempdir <- tempfile(tmpdir = hf.tempdir_root)
     }
-    dir.create(hf.tempdir, mode = "0700")
+    if (!dir.create(hf.tempdir, mode = "0700")) {
+      stop(paste0("Failed to create temporary directory: ", hf.tempdir))
+    }
     # Ensure temporary directory is cleaned up on exit to prevent resource leaks.
     # We use add = TRUE to avoid overwriting any existing exit handlers.
+    # We only register this if dir.create succeeded.
     on.exit(unlink(hf.tempdir, recursive = TRUE), add = TRUE)
 
     hf.tempfile <- file.path(hf.tempdir, basename(fasta_file))

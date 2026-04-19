@@ -29,6 +29,10 @@
 #' # -0.7368616
 #'
 afufs <- function(n, k, theta) {
+  if (!is.numeric(n) || length(n) != 1 || !is.numeric(k) || length(k) != 1 || !is.numeric(theta) || length(theta) != 1) {
+    stop("n, k, and theta must be single numeric values")
+  }
+
   # Strobeck's S is prob of k alleles or fewer, Fu's Sp is k alleles or greater
   # if k == 0 or 1, then Fu's Sp is 1, logit (Sp) is infinity
   # if k > 1 and theta == 0, then Sp is 0, logit (Sp) is -infinity

@@ -32,6 +32,10 @@
 #' # -0.7374915
 #'
 hfufs <- function(n, k, theta) {
+  if (!is.numeric(n) || length(n) != 1 || !is.numeric(k) || length(k) != 1 || !is.numeric(theta) || length(theta) != 1) {
+    stop("n, k, and theta must be single numeric values")
+  }
+
   # this value is pretty arbitrary, but it leaves things accurate when
   # calculate logit (Sp) (i.e. Fu's Fs).
   # Another way would be to split the calculation based on whether Fu's Fs is

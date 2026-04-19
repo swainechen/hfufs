@@ -38,8 +38,10 @@
 #' # 0.7576966
 #'
 hstrobecks <- function(n, k, theta) {
-  if (!is.numeric(n) || length(n) != 1 || !is.numeric(k) || length(k) != 1 || !is.numeric(theta) || length(theta) != 1) {
-    stop("n, k, and theta must be single numeric values")
+  if (!is.numeric(n) || length(n) != 1 || !is.finite(n) ||
+      !is.numeric(k) || length(k) != 1 || !is.finite(k) ||
+      !is.numeric(theta) || length(theta) != 1 || !is.finite(theta) || theta < 0) {
+    stop("n, k, and theta must be single finite numeric values, and theta must be >= 0")
   }
 
   # Strobeck's S is prob of k alleles or fewer, Fu's Sp is k alleles or greater

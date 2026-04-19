@@ -38,8 +38,10 @@ hf.readData <- function(fasta_file) {
     # We check the R version as tempdir(check = TRUE) was introduced in R 4.0.0.
     hf.tempdir_root <- if (getRversion() >= "4.0.0") tempdir(check = TRUE) else tempdir()
     hf.tempdir <- tempfile(tmpdir = hf.tempdir_root)
-    while (file.exists(hf.tempdir) || dir.exists(hf.tempdir)) {
+    iter <- 0
+    while ((file.exists(hf.tempdir) || dir.exists(hf.tempdir)) && iter < 100) {
       hf.tempdir <- tempfile(tmpdir = hf.tempdir_root)
+      iter <- iter + 1
     }
     if (!dir.create(hf.tempdir, mode = "0700")) {
       stop(paste0("Failed to create temporary directory: ", hf.tempdir))

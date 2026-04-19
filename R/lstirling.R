@@ -20,8 +20,9 @@
 #' # 267854.5
 #'
 lstirling <- function(n, m) {
-  if (!is.numeric(n) || length(n) != 1 || !is.numeric(m) || length(m) != 1) {
-    stop("n and m must be single numeric values")
+  if (!is.numeric(n) || length(n) != 1 || !is.finite(n) ||
+      !is.numeric(m) || length(m) != 1 || !is.finite(m)) {
+    stop("n and m must be single finite numeric values")
   }
 
   # special cases first

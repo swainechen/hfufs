@@ -29,8 +29,10 @@
 #' # -0.7368616
 #'
 afufs <- function(n, k, theta) {
-  if (!is.numeric(n) || length(n) != 1 || !is.numeric(k) || length(k) != 1 || !is.numeric(theta) || length(theta) != 1) {
-    stop("n, k, and theta must be single numeric values")
+  if (!is.numeric(n) || length(n) != 1 || !is.finite(n) ||
+      !is.numeric(k) || length(k) != 1 || !is.finite(k) ||
+      !is.numeric(theta) || length(theta) != 1 || !is.finite(theta) || theta < 0) {
+    stop("n, k, and theta must be single finite numeric values, and theta must be >= 0")
   }
 
   # Strobeck's S is prob of k alleles or fewer, Fu's Sp is k alleles or greater
@@ -58,7 +60,7 @@ afufs <- function(n, k, theta) {
     warning = function(w) { return(theta) },
     error = function(e) { return(theta) }
   )
-  if (z0 == theta) { return(hfufs(n+1, k+1, theta)) }
+  if (isTRUE(all.equal(z0, theta)) || !is.finite(z0)) { return(hfufs(n+1, k+1, theta)) }
   t0 <- k/(n-k)
   B <- phi(z0) - chi(t0)
   chitau <- phi(theta) - B
@@ -66,12 +68,20 @@ afufs <- function(n, k, theta) {
   if (z0 > theta) {
     # a check to make sure delta is small enough - chi(t) should approach +inf as t approaches 0 from the positive side
     delta <- 0.00001
-    while(revchi(delta) < 0) { delta <- delta/10 }
+    iter <- 0
+    while(revchi(delta) < 0 && iter < 100) {
+      delta <- delta/10
+      iter <- iter + 1
+    }
     tau <- uniroot(revchi, c(delta, t0), tol=.Machine$double.eps, check.conv=TRUE)$root
   } else {
     # otherwise make sure the range is big enough on the right
     tempfactor <- 10
-    while (revchi(tempfactor*t0) < 0) { tempfactor <- tempfactor*10 }
+    iter <- 0
+    while (revchi(tempfactor*t0) < 0 && iter < 100) {
+      tempfactor <- tempfactor*10
+      iter <- iter + 1
+    }
     tau <- uniroot(revchi, c(t0, tempfactor*t0), tol=.Machine$double.eps, check.conv=TRUE)$root
   }
   f_t0 <- 1/(z0 - theta) * sqrt(chiprimeprime(t0) / (trigamma(z0+n+1) - trigamma(z0+1) + k/z0/z0))

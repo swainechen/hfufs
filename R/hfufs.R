@@ -32,8 +32,10 @@
 #' # -0.7374915
 #'
 hfufs <- function(n, k, theta) {
-  if (!is.numeric(n) || length(n) != 1 || !is.numeric(k) || length(k) != 1 || !is.numeric(theta) || length(theta) != 1) {
-    stop("n, k, and theta must be single numeric values")
+  if (!is.numeric(n) || length(n) != 1 || !is.finite(n) ||
+      !is.numeric(k) || length(k) != 1 || !is.finite(k) ||
+      !is.numeric(theta) || length(theta) != 1 || !is.finite(theta) || theta < 0) {
+    stop("n, k, and theta must be single finite numeric values, and theta must be >= 0")
   }
 
   # this value is pretty arbitrary, but it leaves things accurate when

@@ -35,8 +35,13 @@
 #'
 stirmat <- function(n, m) {
   # from James Cai PGEToolbox
-  if (!is.numeric(n) || length(n) != 1 || !is.numeric(m) || length(m) != 1) {
-    stop("n and m must be single numeric values")
+  if (!is.numeric(n) || length(n) != 1 || !is.finite(n) ||
+      !is.numeric(m) || length(m) != 1 || !is.finite(m)) {
+    stop("n and m must be single finite numeric values")
+  }
+
+  if (n > 2000 || m > 2000) {
+    stop("n and m must be <= 2000 to prevent excessive memory allocation")
   }
 
   if (n <= 0 || m <= 0) {

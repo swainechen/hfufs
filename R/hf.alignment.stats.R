@@ -18,9 +18,36 @@
 #' pg.dataframe <- hf.alignment.stats(pg.object)
 #' }
 #'
-hf.alignment.stats <- function(go, slide=F, window=1000, step=500) {
+hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
+  # Input validation
+  if (missing(go)) {
+    stop("go must be provided")
+  }
+
+  # Check if go is a GENOME object safely
+  is_genome <- tryCatch({
+    summ <- summary(go)
+    is.character(summ) && length(summ) >= 2 && summ[2] == "GENOME"
+  }, error = function(e) FALSE)
+
+  if (!is_genome) {
+    stop("go must be a PopGenome GENOME object")
+  }
+
+  if (!is.logical(slide) || length(slide) != 1 || is.na(slide)) {
+    stop("slide must be a single non-NA logical value")
+  }
+
+  if (!is.numeric(window) || length(window) != 1 || !is.finite(window) || window <= 0) {
+    stop("window must be a single finite positive numeric value")
+  }
+
+  if (!is.numeric(step) || length(step) != 1 || !is.finite(step) || step <= 0) {
+    stop("step must be a single finite positive numeric value")
+  }
+
   # takes in a GENOME object as from PopGenome readData
-  if(summary(go)[2]=="GENOME") {
+  if (TRUE) {
     numindividuals <- length(get.individuals(go)[[1]])
     single_value <- 1/numindividuals
     if (slide) {

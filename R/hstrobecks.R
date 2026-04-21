@@ -45,6 +45,10 @@ hstrobecks <- function(n, k, theta) {
     stop("n, k, and theta must be single finite numeric values; n > 0, k >= 0, theta >= 0, and k <= n")
   }
 
+  if (n > 1000000 || k > 1000000) {
+    stop("n and k must be <= 1,000,000 to prevent resource exhaustion")
+  }
+
   # Strobeck's S is prob of k alleles or fewer, Fu's Sp is k alleles or greater
   # if k == 0, then Strobeck's S is 0
   # if k == 1, then Strobeck's S is 0 if theta > 0, 1 if theta == 0
@@ -81,7 +85,8 @@ hstrobecks <- function(n, k, theta) {
   # this is a fallback in case previous calculation overflows
   # make sure to add values in ascending order for accuracy
   # i.e. explicitly don't just use sum(vals)
-  lSn <- sum(log(theta + (0:(n-1))))
+  # We use lgamma to avoid large vector allocation for 0:(n-1)
+  lSn <- lgamma(theta + n) - lgamma(theta)
   vals <- rep(0, k)
   for (i in 1:k) {
     vals[i] <- exp(lstirling(n,i) + i*log(theta) - lSn)

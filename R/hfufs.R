@@ -39,6 +39,10 @@ hfufs <- function(n, k, theta) {
     stop("n, k, and theta must be single finite numeric values; n > 0, k >= 0, theta >= 0, and k <= n")
   }
 
+  if (n > 1000000 || k > 1000000) {
+    stop("n and k must be <= 1,000,000 to prevent resource exhaustion")
+  }
+
   # this value is pretty arbitrary, but it leaves things accurate when
   # calculate logit (Sp) (i.e. Fu's Fs).
   # Another way would be to split the calculation based on whether Fu's Fs is
@@ -85,7 +89,8 @@ hfufs <- function(n, k, theta) {
   }
   # use log approximations to calculate Fu's Fs
   # this is a fallback in case previous calculation hit infinity
-  lSn <- sum(log(theta + (0:(n-1))))
+  # We use lgamma to avoid large vector allocation for 0:(n-1)
+  lSn <- lgamma(theta + n) - lgamma(theta)
   Sp <- 0
   for (i in k:n) {
     Sp <- Sp + exp(lstirling(n,i) + i*log(theta) - lSn)

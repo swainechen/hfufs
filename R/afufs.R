@@ -36,6 +36,10 @@ afufs <- function(n, k, theta) {
     stop("n, k, and theta must be single finite numeric values; n > 0, k >= 0, theta >= 0, and k <= n")
   }
 
+  if (n > 1000000 || k > 1000000) {
+    stop("n and k must be <= 1,000,000 to prevent resource exhaustion")
+  }
+
   # Store original values for potential fallback
   n_orig <- n
   k_orig <- k

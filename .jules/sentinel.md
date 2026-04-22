@@ -19,3 +19,8 @@ SENTINEL'S JOURNAL - CRITICAL LEARNINGS ONLY
 **Vulnerability:** Large vector allocations using the '0:(n-1)' pattern and 'rep(0, k)' can lead to out-of-memory (OOM) crashes if 'n' or 'k' are controlled by untrusted input. Missing validation on complex objects like PopGenome GENOME objects can lead to unexpected failures.
 **Learning:** Even if 'n' is not technically "user input" in a web sense, in a library context, unbounded parameters that drive memory allocation are a DoS risk. 'sum(log(theta + (0:(n-1))))' is a common but dangerous pattern for large 'n'.
 **Prevention:** Use mathematically equivalent but resource-efficient functions like 'lgamma' to avoid large intermediate vector allocations. Implement reasonable upper bounds on dimensions and iteration counts. Use robust type checking and 'tryCatch' when validating complex objects that rely on specific internal structures or summary outputs.
+
+## 2024-05-26 - Defensive R Programming and Namespace Security
+**Vulnerability:** Application crashes due to 'missing value where TRUE/FALSE needed' when comparisons result in NA/NaN, and potential namespace masking of external library calls.
+**Learning:** R's default behavior for logical comparisons with NA is to return NA, which causes if() and other control flow to fail. Unqualified function calls can be 'masked' by functions in the global environment or other packages.
+**Prevention:** Wrap logical conditions in if() statements with isTRUE() to handle NA/NaN results safely. Always prefix external library calls with their namespace (e.g., PopGenome::function) to ensure the intended code is executed and provide defense in depth against namespace pollution.

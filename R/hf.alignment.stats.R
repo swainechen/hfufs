@@ -24,6 +24,10 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
     stop("go must be provided")
   }
 
+  if (!requireNamespace("PopGenome", quietly = TRUE)) {
+    stop("PopGenome package is required for hf.alignment.stats. Please install it.")
+  }
+
   # Check if go is a GENOME object safely
   is_genome <- tryCatch({
     summ <- summary(go)
@@ -48,17 +52,17 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
 
   # takes in a GENOME object as from PopGenome readData
   if (TRUE) {
-    numindividuals <- length(get.individuals(go)[[1]])
+    numindividuals <- length(PopGenome::get.individuals(go)[[1]])
     single_value <- 1/numindividuals
     if (slide) {
-      slide_go <- sliding.window.transform(go, width=window, jump=step, type=2, whole.data=T)
-      slide_go <- diversity.stats(slide_go, pi=T)
-      slide_go <- neutrality.stats(slide_go, detail=T, do.R2=T)
-      n <- data.frame(get.neutrality(slide_go)[[1]])
+      slide_go <- PopGenome::sliding.window.transform(go, width=window, jump=step, type=2, whole.data=T)
+      slide_go <- PopGenome::diversity.stats(slide_go, pi=T)
+      slide_go <- PopGenome::neutrality.stats(slide_go, detail=T, do.R2=T)
+      n <- data.frame(PopGenome::get.neutrality(slide_go)[[1]])
       n$x.start <- as.numeric(sapply(strsplit(slide_go@region.names, split=" - "), "[")[1,])
       n$x.end <- as.numeric(sapply(strsplit(sub(" :", "", slide_go@region.names), split=" - "), "[")[2,])
       n$numindividuals <- numindividuals
-      n$pi <- get.diversity(slide_go)[[1]][,3]
+      n$pi <- PopGenome::get.diversity(slide_go)[[1]][,3]
       h <- slide_go@region.stats@haplotype.counts
       n$n.sequences <- as.numeric(lapply(h, sum))
       templist <- lapply(h, ncol)
@@ -69,11 +73,11 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
         n$Fu.F_S[i] <- afufs(n$n.sequences[i], n$n.haplotypes[i], n$pi[i])
       }
     } else {
-      go <- diversity.stats(go, pi=T)
-      go <- neutrality.stats(go, detail=T, do.R2=T)
-      n <- data.frame(get.neutrality(go)[[1]])
+      go <- PopGenome::diversity.stats(go, pi=T)
+      go <- PopGenome::neutrality.stats(go, detail=T, do.R2=T)
+      n <- data.frame(PopGenome::get.neutrality(go)[[1]])
       n$numindividuals <- numindividuals
-      n$pi <- get.diversity(go)[[1]][,3]
+      n$pi <- PopGenome::get.diversity(go)[[1]][,3]
       h <- go@region.stats@haplotype.counts[[1]]
       n$n.sequences <- sum(h)
       n$n.haplotypes <- ncol(h)

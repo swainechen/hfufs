@@ -25,6 +25,10 @@ lstirling <- function(n, m) {
     stop("n and m must be single finite numeric values")
   }
 
+  if (n > 1000000 || m > 1000000) {
+    stop("n and m must be <= 1,000,000 to prevent resource exhaustion")
+  }
+
   # special cases first
   if (m < 0 || n < 0 || n < m) {
     # we really need everything to be positive to get a value
@@ -48,7 +52,7 @@ lstirling <- function(n, m) {
     m <- m - 1
     x0_res <- tryCatch(
       {
-        uniroot(phiprime, c(0.1, n * m))$root
+        stats::uniroot(phiprime, c(0.1, n * m))$root
       },
       error = function(e) {
         return(NULL)

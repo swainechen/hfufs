@@ -29,6 +29,10 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
     stop("go must be provided")
   }
 
+  if (!requireNamespace("PopGenome", quietly = TRUE)) {
+    stop("PopGenome package is required for hf.alignment.stats. Please install it.")
+  }
+
   # Check if go is a GENOME object safely
   is_genome <- tryCatch({
     summ <- summary(go)

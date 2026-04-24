@@ -65,7 +65,7 @@ afufs <- function(n, k, theta) {
   chi <- function(t) { n*log(1+t) - k*log(t) }
   chiprimeprime <- function(t) { -n/(1+t)/(1+t) + k/t/t }
   z0 <- tryCatch (
-    { uniroot(phiprime, c(0.1, n*k), tol=.Machine$double.eps, check.conv=TRUE)$root },
+    { stats::uniroot(phiprime, c(0.1, n*k), tol=.Machine$double.eps, check.conv=TRUE)$root },
     warning = function(w) { return(theta) },
     error = function(e) { return(theta) }
   )
@@ -84,7 +84,7 @@ afufs <- function(n, k, theta) {
           delta <- delta/10
           iter <- iter + 1
         }
-        uniroot(revchi, c(delta, t0), tol=.Machine$double.eps, check.conv=TRUE)$root
+        stats::uniroot(revchi, c(delta, t0), tol=.Machine$double.eps, check.conv=TRUE)$root
       } else {
         # otherwise make sure the range is big enough on the right
         tempfactor <- 10
@@ -93,7 +93,7 @@ afufs <- function(n, k, theta) {
           tempfactor <- tempfactor*10
           iter <- iter + 1
         }
-        uniroot(revchi, c(t0, tempfactor*t0), tol=.Machine$double.eps, check.conv=TRUE)$root
+        stats::uniroot(revchi, c(t0, tempfactor*t0), tol=.Machine$double.eps, check.conv=TRUE)$root
       }
     },
     warning = function(w) { return(NULL) },
@@ -103,8 +103,8 @@ afufs <- function(n, k, theta) {
   f_t0 <- 1/(z0 - theta) * sqrt(chiprimeprime(t0) / (trigamma(z0+n+1) - trigamma(z0+1) + k/z0/z0))
   G0 <- f_t0 - 1/(t0 - tau)
   temp <- exp(lchoose(n, k-1) - chitau)
-  Sprime <- pbeta(tau/(1+tau), k, n-k+1) + temp * G0
-  Tprime <- pbeta(1/(1+tau), n-k+1, k) - temp * G0
+  Sprime <- stats::pbeta(tau/(1+tau), k, n-k+1) + temp * G0
+  Tprime <- stats::pbeta(1/(1+tau), n-k+1, k) - temp * G0
   if (Sprime < 0.5) {
     return(log(Sprime) - log(1-Sprime))
   } else {

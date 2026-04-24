@@ -71,7 +71,7 @@ hfufs <- function(n, k, theta) {
         Sp <- Sp + abs(s_n[n,i]) * theta**i
       }
       Sp <- Sp / Sn
-      if ((1-Sp) < too_small) {
+      if (isTRUE((1 - Sp) < too_small)) {
         S <- 0
         for(i in 1:(k-1)) {
           S <- S + abs(s_n[n,i]) * theta**i
@@ -93,9 +93,9 @@ hfufs <- function(n, k, theta) {
   lSn <- lgamma(theta + n) - lgamma(theta)
   Sp <- 0
   for (i in k:n) {
-    Sp <- Sp + exp(lstirling(n,i) + i*log(theta) - lSn)
+    Sp <- Sp + exp(lstirling(n, i) + i * log(theta) - lSn)
   }
-  if ((1-Sp) < too_small) {
+  if (isTRUE((1 - Sp) < too_small)) {
     S <- 0
     for (i in 1:(k-1)) {
       S <- S + exp(lstirling(n,i) + i*log(theta) - lSn)

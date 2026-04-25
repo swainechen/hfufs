@@ -70,13 +70,13 @@ hstrobecks <- function(n, k, theta) {
     for(i in 0:(n-1)) {
       Sn <- Sn * (theta + i)
     }
-    if(!is.infinite(Sn)) {
+    if(!base::is.infinite(Sn)) {
       Ss <- 0
       for(i in 1:k) {	# this is 1:k for Strobeck's S, k:n for Fu's Fs
-        Ss <- Ss + abs(s_n[n,i]) * theta**i
+        Ss <- Ss + base::abs(s_n[n,i]) * theta**i
       }
       Ss <- Ss / Sn
-      if(!is.nan(Ss) & !is.infinite(Ss)) {
+      if(isTRUE(!base::is.nan(Ss) & !base::is.infinite(Ss))) {
         return(Ss)
       }
     }
@@ -86,12 +86,12 @@ hstrobecks <- function(n, k, theta) {
   # make sure to add values in ascending order for accuracy
   # i.e. explicitly don't just use sum(vals)
   # We use lgamma to avoid large vector allocation for 0:(n-1)
-  lSn <- lgamma(theta + n) - lgamma(theta)
-  vals <- rep(0, k)
+  lSn <- base::lgamma(theta + n) - base::lgamma(theta)
+  vals <- base::rep(0, k)
   for (i in 1:k) {
-    vals[i] <- exp(lstirling(n,i) + i*log(theta) - lSn)
+    vals[i] <- base::exp(lstirling(n,i) + i * base::log(theta) - lSn)
   }
-  vals <- sort(vals)
+  vals <- base::sort(vals)
   Ss <- 0
   for (i in 1:k) {
     Ss <- Ss + vals[i]

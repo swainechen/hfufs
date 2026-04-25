@@ -65,24 +65,24 @@ hfufs <- function(n, k, theta) {
     for(i in 0:(n-1)) {
       Sn <- Sn * (theta + i)
     }
-    if(!is.infinite(Sn)) {
+    if(!base::is.infinite(Sn)) {
       Sp <- 0
       for(i in k:n) {	# this is k:n for Fu's Fs, 1:k for Strobeck's S
-        Sp <- Sp + abs(s_n[n,i]) * theta**i
+        Sp <- Sp + base::abs(s_n[n,i]) * theta**i
       }
       Sp <- Sp / Sn
       if (isTRUE((1 - Sp) < too_small)) {
         S <- 0
         for(i in 1:(k-1)) {
-          S <- S + abs(s_n[n,i]) * theta**i
+          S <- S + base::abs(s_n[n,i]) * theta**i
         }
         S <- S / Sn
-        if(!is.nan(S) & S > 0 & 1-S > 0) {
-          return(log(1-S) - log(S))
+        if(isTRUE(!base::is.nan(S) & S > 0 & 1-S > 0)) {
+          return(base::log(1-S) - base::log(S))
         }
       } else { 
-        if (!is.nan(Sp) & Sp > 0 & 1-Sp > 0) {
-          return(log(Sp) - log(1-Sp))
+        if (isTRUE(!base::is.nan(Sp) & Sp > 0 & 1-Sp > 0)) {
+          return(base::log(Sp) - base::log(1-Sp))
         }
       }
     }
@@ -90,18 +90,18 @@ hfufs <- function(n, k, theta) {
   # use log approximations to calculate Fu's Fs
   # this is a fallback in case previous calculation hit infinity
   # We use lgamma to avoid large vector allocation for 0:(n-1)
-  lSn <- lgamma(theta + n) - lgamma(theta)
+  lSn <- base::lgamma(theta + n) - base::lgamma(theta)
   Sp <- 0
   for (i in k:n) {
-    Sp <- Sp + exp(lstirling(n, i) + i * log(theta) - lSn)
+    Sp <- Sp + base::exp(lstirling(n, i) + i * base::log(theta) - lSn)
   }
   if (isTRUE((1 - Sp) < too_small)) {
     S <- 0
     for (i in 1:(k-1)) {
-      S <- S + exp(lstirling(n,i) + i*log(theta) - lSn)
+      S <- S + base::exp(lstirling(n,i) + i * base::log(theta) - lSn)
     }
-    return(log(1-S) - log(S))
+    return(base::log(1-S) - base::log(S))
   } else {
-    return(log(Sp) - log(1-Sp))
+    return(base::log(Sp) - base::log(1-Sp))
   }
 }

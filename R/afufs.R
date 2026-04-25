@@ -80,7 +80,7 @@ afufs <- function(n, k, theta) {
         # a check to make sure delta is small enough - chi(t) should approach +inf as t approaches 0 from the positive side
         delta <- 0.00001
         iter <- 0
-        while(revchi(delta) < 0 && iter < 100) {
+        while(isTRUE(revchi(delta) < 0) && iter < 100) {
           delta <- delta/10
           iter <- iter + 1
         }
@@ -89,7 +89,7 @@ afufs <- function(n, k, theta) {
         # otherwise make sure the range is big enough on the right
         tempfactor <- 10
         iter <- 0
-        while (revchi(tempfactor*t0) < 0 && iter < 100) {
+        while (isTRUE(revchi(tempfactor*t0) < 0) && iter < 100) {
           tempfactor <- tempfactor*10
           iter <- iter + 1
         }

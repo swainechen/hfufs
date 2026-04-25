@@ -29,10 +29,6 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
     stop("go must be provided")
   }
 
-  if (!requireNamespace("PopGenome", quietly = TRUE)) {
-    stop("PopGenome package is required for hf.alignment.stats. Please install it.")
-  }
-
   # Check if go is a GENOME object safely
   is_genome <- tryCatch({
     summ <- summary(go)
@@ -57,7 +53,11 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
 
   # takes in a GENOME object as from PopGenome readData
   if (TRUE) {
-    numindividuals <- length(PopGenome::get.individuals(go)[[1]])
+    individuals_list <- PopGenome::get.individuals(go)
+    if (length(individuals_list) == 0) {
+      stop("No individuals found in the GENOME object")
+    }
+    numindividuals <- length(individuals_list[[1]])
     single_value <- 1/numindividuals
     if (slide) {
       slide_go <- PopGenome::sliding.window.transform(go, width=window, jump=step, type=2, whole.data=T)
@@ -88,7 +88,7 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
       n$n.haplotypes <- ncol(h)
       n$n.singleton.haplotypes <- length(which(h == 1))
       n$n.consensus.haplotypes <- max(h)
-      if(is.nan(n$Fu.F_S)) n$Fu.F_S <- afufs(n$n.sequences, n$n.haplotypes, n$pi)
+      if(isTRUE(is.nan(n$Fu.F_S))) n$Fu.F_S <- afufs(n$n.sequences, n$n.haplotypes, n$pi)
     }
     return(n)
   }

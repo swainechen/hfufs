@@ -60,9 +60,9 @@ afufs <- function(n, k, theta) {
   # we derive this as S'_(n+1),(k+1)(theta) - so decrement n, k first
   n <- n-1
   k <- k-1
-  phi <- function(x) { lgamma(x+n+1) - lgamma(x+1) - k*log(x) }
-  phiprime <- function(x) { digamma(x+n+1) - digamma(x+1) - k/x }
-  chi <- function(t) { n*log(1+t) - k*log(t) }
+  phi <- function(x) { base::lgamma(x+n+1) - base::lgamma(x+1) - k*base::log(x) }
+  phiprime <- function(x) { base::digamma(x+n+1) - base::digamma(x+1) - k/x }
+  chi <- function(t) { n*base::log(1+t) - k*base::log(t) }
   chiprimeprime <- function(t) { -n/(1+t)/(1+t) + k/t/t }
   z0 <- tryCatch (
     { stats::uniroot(phiprime, c(0.1, n*k), tol=.Machine$double.eps, check.conv=TRUE)$root },
@@ -99,15 +99,15 @@ afufs <- function(n, k, theta) {
     warning = function(w) { return(NULL) },
     error = function(e) { return(NULL) }
   )
-  if (is.null(tau) || !is.finite(tau)) { return(hfufs(n_orig, k_orig, theta)) }
-  f_t0 <- 1/(z0 - theta) * sqrt(chiprimeprime(t0) / (trigamma(z0+n+1) - trigamma(z0+1) + k/z0/z0))
+  if (is.null(tau) || !base::is.finite(tau)) { return(hfufs(n_orig, k_orig, theta)) }
+  f_t0 <- 1/(z0 - theta) * base::sqrt(chiprimeprime(t0) / (base::trigamma(z0+n+1) - base::trigamma(z0+1) + k/z0/z0))
   G0 <- f_t0 - 1/(t0 - tau)
-  temp <- exp(lchoose(n, k-1) - chitau)
+  temp <- base::exp(base::lchoose(n, k-1) - chitau)
   Sprime <- stats::pbeta(tau/(1+tau), k, n-k+1) + temp * G0
   Tprime <- stats::pbeta(1/(1+tau), n-k+1, k) - temp * G0
-  if (Sprime < 0.5) {
-    return(log(Sprime) - log(1-Sprime))
+  if (isTRUE(Sprime < 0.5)) {
+    return(base::log(Sprime) - base::log(1-Sprime))
   } else {
-    return(log(1-Tprime) - log(Tprime))
+    return(base::log(1-Tprime) - base::log(Tprime))
   }
 }

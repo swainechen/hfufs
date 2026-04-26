@@ -51,18 +51,47 @@ hf.readData <- function(fasta_file) {
     # We only register this if dir.create succeeded.
     on.exit(unlink(hf.tempdir, recursive = TRUE), add = TRUE)
 
-    hf.tempfile <- file.path(hf.tempdir, basename(fasta_file))
+    # Preserve the original filename to maintain sample identifiers in PopGenome.
+    # basename() is used to prevent path traversal when constructing the temporary path.
+    orig_basename <- basename(fasta_file)
+    max_size <- 2 * 1024 * 1024 * 1024 # 2GB limit for DoS protection (disk exhaustion)
 
     if (grepl("\\.gz$", fasta_file, ignore.case = TRUE)) {
-      hf.tempfile <- sub("\\.gz$", "", hf.tempfile, ignore.case = TRUE)
-      # Use system2 for more secure command execution, avoiding shell interpretation
-      # and protecting against option injection with the '--' flag.
-      zcat_res <- system2("zcat", args = c("--", fasta_file), stdout = hf.tempfile)
-      if (zcat_res != 0) {
-        stop("Failed to decompress fasta file using zcat")
-      }
+      # Decompress while stripping .gz extension
+      hf.tempfile <- file.path(hf.tempdir, sub("\\.gz$", "", orig_basename, ignore.case = TRUE))
+      # Native R decompression with size limit to prevent DoS.
+      # This avoids dependency on external 'zcat' and is more portable.
+      con_in <- gzfile(fasta_file, "rb")
+      con_out <- file(hf.tempfile, "wb")
+      total_bytes <- 0
+      chunk_size <- 10 * 1024 * 1024 # 10MB chunks
+      tryCatch({
+        while (TRUE) {
+          chunk <- readBin(con_in, "raw", n = chunk_size)
+          if (length(chunk) == 0) break
+          total_bytes <- total_bytes + length(chunk)
+          if (total_bytes > max_size) {
+            stop("Decompressed file exceeds 2GB limit (DoS protection)")
+          }
+          writeBin(chunk, con_out)
+        }
+      }, finally = {
+        close(con_out)
+        close(con_in)
+      })
     } else {
-      file.symlink(fasta_file, hf.tempfile)
+      hf.tempfile <- file.path(hf.tempdir, orig_basename)
+      # Use file.symlink for performance with large genomic files, as per bioinformatics standards.
+      file_info <- file.info(fasta_file)
+      if (isTRUE(file_info$size > max_size)) {
+        stop("File exceeds 2GB limit (DoS protection)")
+      }
+      if (!file.symlink(fasta_file, hf.tempfile)) {
+        # Fallback to file.copy if symlink fails (e.g., on some Windows configurations)
+        if (!file.copy(fasta_file, hf.tempfile, overwrite = TRUE)) {
+          stop("Failed to link or copy fasta file to temporary directory")
+        }
+      }
     }
 
     res <- tryCatch(

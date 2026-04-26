@@ -24,3 +24,8 @@ SENTINEL'S JOURNAL - CRITICAL LEARNINGS ONLY
 **Vulnerability:** Application crashes due to 'missing value where TRUE/FALSE needed' when comparisons result in NA/NaN, and potential namespace masking of external library calls.
 **Learning:** R's default behavior for logical comparisons with NA is to return NA, which causes if() and other control flow to fail. Unqualified function calls can be 'masked' by functions in the global environment or other packages.
 **Prevention:** Wrap logical conditions in if() statements with isTRUE() to handle NA/NaN results safely. Always prefix external library calls with their namespace (e.g., PopGenome::function) to ensure the intended code is executed and provide defense in depth against namespace pollution.
+
+## 2024-05-27 - Functional Regression via Security Over-Hardening
+**Vulnerability:** Potential path traversal or special character handling issues in temporary file staging.
+**Learning:** Attempting to mitigate risks by renaming all input files to a generic "input.fasta" broke downstream analysis in `PopGenome`, which relies on filenames as sample identifiers. Security hardening must not compromise the core functional requirements of the application.
+**Prevention:** Use `basename()` to safely extract filenames for staging in temporary directories, preserving metadata required by external parsers. Balance security with performance by using `file.symlink` with a fallback to `file.copy`, and use native R decompression (`gzfile`) to avoid external dependencies while maintaining portability.

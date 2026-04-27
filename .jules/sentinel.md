@@ -29,3 +29,8 @@ SENTINEL'S JOURNAL - CRITICAL LEARNINGS ONLY
 **Vulnerability:** Potential path traversal or special character handling issues in temporary file staging.
 **Learning:** Attempting to mitigate risks by renaming all input files to a generic "input.fasta" broke downstream analysis in `PopGenome`, which relies on filenames as sample identifiers. Security hardening must not compromise the core functional requirements of the application.
 **Prevention:** Use `basename()` to safely extract filenames for staging in temporary directories, preserving metadata required by external parsers. Balance security with performance by using `file.symlink` with a fallback to `file.copy`, and use native R decompression (`gzfile`) to avoid external dependencies while maintaining portability.
+
+## 2024-05-28 - Resource Safety vs. Functional Correctness in R Connections
+**Vulnerability:** Resource exhaustion via unclosed file descriptors, and functional regressions (file locking) when using `on.exit()` for connections.
+**Learning:** While `on.exit()` is standard for cleanup, in R it defers execution until the function returns. If the function subsequently calls an external tool (like `PopGenome::readData`) that needs to read the same file, it will fail on systems with mandatory file locking (Windows).
+**Prevention:** Use a nested `tryCatch(..., finally = { close(...) })` structure for file connections that must be closed *before* the function continues its execution. This ensures both resource safety and functional compatibility across platforms.

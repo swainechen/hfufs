@@ -23,89 +23,102 @@
 #' }
 #'
 hf.readData <- function(fasta_file) {
-  if (!is.character(fasta_file) || length(fasta_file) != 1) {
-    stop("fasta_file must be a single character string")
+  # Dependency check
+  if (!base::requireNamespace("PopGenome", quietly = TRUE)) {
+    base::stop("The 'PopGenome' package is required but not installed.")
+  }
+
+  if (!base::is.character(fasta_file) || base::length(fasta_file) != 1) {
+    base::stop("fasta_file must be a single character string")
   }
 
   # Use utils::file_test("-f", ...) to ensure it is a regular file.
   # This is more robust than file.exists() as it excludes special files like FIFOs
   # that could cause the process to block, while remaining portable across platforms.
   if (utils::file_test("-f", fasta_file)) {
-    fasta_file <- normalizePath(fasta_file)
+    fasta_file <- base::normalizePath(fasta_file)
 
     # readData wants a clean directory with sequences
     # get a new subdir in case there are other temp files already.
     # We check the R version as tempdir(check = TRUE) was introduced in R 4.0.0.
-    hf.tempdir_root <- if (getRversion() >= "4.0.0") tempdir(check = TRUE) else tempdir()
-    hf.tempdir <- tempfile(tmpdir = hf.tempdir_root)
+    hf.tempdir_root <- if (base::getRversion() >= "4.0.0") base::tempdir(check = TRUE) else base::tempdir()
+    hf.tempdir <- base::tempfile(tmpdir = hf.tempdir_root)
     iter <- 0
-    while ((file.exists(hf.tempdir) || dir.exists(hf.tempdir)) && iter < 100) {
-      hf.tempdir <- tempfile(tmpdir = hf.tempdir_root)
+    while ((base::file.exists(hf.tempdir) || base::dir.exists(hf.tempdir)) && iter < 100) {
+      hf.tempdir <- base::tempfile(tmpdir = hf.tempdir_root)
       iter <- iter + 1
     }
-    if (!dir.create(hf.tempdir, mode = "0700")) {
-      stop(paste0("Failed to create temporary directory: ", hf.tempdir))
+    if (!base::dir.create(hf.tempdir, mode = "0700")) {
+      base::stop(base::paste0("Failed to create temporary directory: ", hf.tempdir))
     }
     # Ensure temporary directory is cleaned up on exit to prevent resource leaks.
     # We use add = TRUE to avoid overwriting any existing exit handlers.
     # We only register this if dir.create succeeded.
-    on.exit(unlink(hf.tempdir, recursive = TRUE), add = TRUE)
+    base::on.exit(base::unlink(hf.tempdir, recursive = TRUE), add = TRUE)
 
     # Preserve the original filename to maintain sample identifiers in PopGenome.
     # basename() is used to prevent path traversal when constructing the temporary path.
-    orig_basename <- basename(fasta_file)
+    orig_basename <- base::basename(fasta_file)
     max_size <- 2 * 1024 * 1024 * 1024 # 2GB limit for DoS protection (disk exhaustion)
 
-    if (grepl("\\.gz$", fasta_file, ignore.case = TRUE)) {
+    if (base::grepl("\\.gz$", fasta_file, ignore.case = TRUE)) {
       # Decompress while stripping .gz extension
-      hf.tempfile <- file.path(hf.tempdir, sub("\\.gz$", "", orig_basename, ignore.case = TRUE))
+      decompressed_basename <- base::sub("\\.gz$", "", orig_basename, ignore.case = TRUE)
+      if (decompressed_basename == "" || decompressed_basename == ".") {
+        decompressed_basename <- "input.fasta"
+      }
+      hf.tempfile <- base::file.path(hf.tempdir, decompressed_basename)
+
       # Native R decompression with size limit to prevent DoS.
       # This avoids dependency on external 'zcat' and is more portable.
-      con_in <- gzfile(fasta_file, "rb")
-      con_out <- file(hf.tempfile, "wb")
-      total_bytes <- 0
-      chunk_size <- 10 * 1024 * 1024 # 10MB chunks
-      tryCatch({
-        while (TRUE) {
-          chunk <- readBin(con_in, "raw", n = chunk_size)
-          if (length(chunk) == 0) break
-          total_bytes <- total_bytes + length(chunk)
-          if (total_bytes > max_size) {
-            stop("Decompressed file exceeds 2GB limit (DoS protection)")
+      con_in <- base::gzfile(fasta_file, "rb")
+      base::tryCatch({
+        con_out <- base::file(hf.tempfile, "wb")
+        base::tryCatch({
+          total_bytes <- 0
+          chunk_size <- 10 * 1024 * 1024 # 10MB chunks
+          while (TRUE) {
+            chunk <- base::readBin(con_in, "raw", n = chunk_size)
+            if (base::length(chunk) == 0) break
+            total_bytes <- total_bytes + base::length(chunk)
+            if (total_bytes > max_size) {
+              base::stop("Decompressed file exceeds 2GB limit (DoS protection)")
+            }
+            base::writeBin(chunk, con_out)
           }
-          writeBin(chunk, con_out)
-        }
+        }, finally = {
+          base::close(con_out)
+        })
       }, finally = {
-        close(con_out)
-        close(con_in)
+        base::close(con_in)
       })
     } else {
-      hf.tempfile <- file.path(hf.tempdir, orig_basename)
+      hf.tempfile <- base::file.path(hf.tempdir, orig_basename)
       # Use file.symlink for performance with large genomic files, as per bioinformatics standards.
-      file_info <- file.info(fasta_file)
-      if (isTRUE(file_info$size > max_size)) {
-        stop("File exceeds 2GB limit (DoS protection)")
+      file_info <- base::file.info(fasta_file)
+      if (base::isTRUE(file_info$size > max_size)) {
+        base::stop("File exceeds 2GB limit (DoS protection)")
       }
-      if (!file.symlink(fasta_file, hf.tempfile)) {
+      if (!base::file.symlink(fasta_file, hf.tempfile)) {
         # Fallback to file.copy if symlink fails (e.g., on some Windows configurations)
-        if (!file.copy(fasta_file, hf.tempfile, overwrite = TRUE)) {
-          stop("Failed to link or copy fasta file to temporary directory")
+        if (!base::file.copy(fasta_file, hf.tempfile, overwrite = TRUE)) {
+          base::stop("Failed to link or copy fasta file to temporary directory")
         }
       }
     }
 
-    res <- tryCatch(
+    res <- base::tryCatch(
       {
         PopGenome::readData(hf.tempdir)
       },
       error = function(e) {
-        warning("Error running PopGenome::readData - maybe check if PopGenome is installed")
+        base::warning("Error running PopGenome::readData - maybe check if PopGenome is installed")
         return(NULL)
       }
     )
 
     return(res)
   } else {
-    stop(paste0("fasta_file '", fasta_file, "' does not exist or is a directory"))
+    base::stop(base::paste0("fasta_file '", fasta_file, "' does not exist or is a directory"))
   }
 }

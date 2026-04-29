@@ -50,18 +50,18 @@ lstirling <- function(n, m) {
     }
     n <- n - 1
     m <- m - 1
-    x0_res <- tryCatch(
+    x0_res <- base::tryCatch(
       {
-        stats::uniroot(phiprime, c(0.1, n * m))$root
+        stats::uniroot(phiprime, c(0.1, n * m), tol = .Machine$double.eps, check.conv = TRUE)$root
       },
       error = function(e) {
         return(NULL)
       }
     )
 
-    if (is.null(x0_res)) {
+    if (base::isTRUE(base::is.null(x0_res))) {
       # Fallback or error if uniroot fails
-      warning("uniroot failed to converge in lstirling")
+      base::warning("uniroot failed to converge in lstirling")
       return(NaN)
     }
     x0 <- x0_res

@@ -34,3 +34,8 @@ SENTINEL'S JOURNAL - CRITICAL LEARNINGS ONLY
 **Vulnerability:** Resource exhaustion via unclosed file descriptors, and functional regressions (file locking) when using `on.exit()` for connections.
 **Learning:** While `on.exit()` is standard for cleanup, in R it defers execution until the function returns. If the function subsequently calls an external tool (like `PopGenome::readData`) that needs to read the same file, it will fail on systems with mandatory file locking (Windows).
 **Prevention:** Use a nested `tryCatch(..., finally = { close(...) })` structure for file connections that must be closed *before* the function continues its execution. This ensures both resource safety and functional compatibility across platforms.
+
+## 2024-05-29 - Logic Errors in Vectorized Security Checks and Overly Restrictive DoS Bounds
+**Vulnerability:** Application of scalar security checks (`isTRUE(is.nan())`) to vectorized data (multi-population data frames) and setting DoS bounds that conflict with legitimate large-scale bioinformatics workloads.
+**Learning:** R functions often operate on vectors or data frames. Security checks must be robust against vectorized inputs. Hardening against DoS must account for the scale of the domain (genomics) to avoid breaking valid use cases.
+**Prevention:** Use `for(i in which(condition))` or vectorized functions to handle data frame updates safely. Research domain-specific upper bounds (e.g., 2Gb for files, 2e9 for genomic coordinates) to balance security and utility.

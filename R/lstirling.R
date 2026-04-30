@@ -52,7 +52,10 @@ lstirling <- function(n, m) {
     m <- m - 1
     x0_res <- tryCatch(
       {
-        stats::uniroot(phiprime, c(0.1, n * m))$root
+        stats::uniroot(phiprime, c(0.1, n * m), tol = .Machine$double.eps, check.conv = TRUE)$root
+      },
+      warning = function(w) {
+        return(NULL)
       },
       error = function(e) {
         return(NULL)

@@ -44,3 +44,8 @@ SENTINEL'S JOURNAL - CRITICAL LEARNINGS ONLY
 **Vulnerability:** Application of scalar security checks (`isTRUE(is.nan())`) to vectorized data (multi-population data frames) and setting DoS bounds that conflict with legitimate large-scale bioinformatics workloads.
 **Learning:** R functions often operate on vectors or data frames. Security checks must be robust against vectorized inputs. Hardening against DoS must account for the scale of the domain (genomics) to avoid breaking valid use cases.
 **Prevention:** Use `for(i in which(condition))` or vectorized functions to handle data frame updates safely. Research domain-specific upper bounds (e.g., 2Gb for files, 2e9 for genomic coordinates) to balance security and utility.
+
+## 2024-06-01 - Numerical Robustness and Error Handling in Root-Finding
+**Vulnerability:** Potential for silent non-convergence or precision loss in numerical root-finding, leading to incorrect biological statistics.
+**Learning:** `stats::uniroot` in R by default returns a result even if it doesn't converge within `maxiter`, only issuing a warning. In security-sensitive or high-precision contexts, this can lead to "silent failures" or exploitation of numerical instability.
+**Prevention:** Always enable `check.conv = TRUE` and set an explicit tolerance (e.g., `tol = .Machine$double.eps`) when calling `uniroot`. Wrap the call in a `tryCatch` that explicitly handles both `error` and `warning` to ensure convergence failures are caught and handled securely (e.g., by falling back or failing safely).

@@ -55,7 +55,7 @@ hfufs <- function(n, k, theta) {
   if(k <= 1) {
     return(Inf)
   }
-  if(k > 1 & theta == 0) {
+  if(k > 1 && theta == 0) {
     return(-Inf)
   }
   # if n is small enough, then just calculate directly

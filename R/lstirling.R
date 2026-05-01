@@ -54,6 +54,9 @@ lstirling <- function(n, m) {
       {
         stats::uniroot(phiprime, c(0.1, n * m), tol = .Machine$double.eps, check.conv = TRUE)$root
       },
+      warning = function(w) {
+        return(NULL)
+      },
       error = function(e) {
         return(NULL)
       }

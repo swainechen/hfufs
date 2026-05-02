@@ -63,9 +63,9 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
     }
 
     if (slide) {
-      slide_go <- PopGenome::sliding.window.transform(go, width=window, jump=step, type=2, whole.data=T)
-      slide_go <- PopGenome::diversity.stats(slide_go, pi=T)
-      slide_go <- PopGenome::neutrality.stats(slide_go, detail=T, do.R2=T)
+      slide_go <- PopGenome::sliding.window.transform(go, width=window, jump=step, type=2, whole.data=TRUE)
+      slide_go <- PopGenome::diversity.stats(slide_go, pi=TRUE)
+      slide_go <- PopGenome::neutrality.stats(slide_go, detail=TRUE, do.R2=TRUE)
 
       neutrality_list <- PopGenome::get.neutrality(slide_go)
       if (base::length(neutrality_list) == 0) {
@@ -93,8 +93,8 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
         n$Fu.F_S[i] <- afufs(n$n.sequences[i], n$n.haplotypes[i], n$pi[i])
       }
     } else {
-      go <- PopGenome::diversity.stats(go, pi=T)
-      go <- PopGenome::neutrality.stats(go, detail=T, do.R2=T)
+      go <- PopGenome::diversity.stats(go, pi=TRUE)
+      go <- PopGenome::neutrality.stats(go, detail=TRUE, do.R2=TRUE)
 
       neutrality_list <- PopGenome::get.neutrality(go)
       if (base::length(neutrality_list) == 0) {

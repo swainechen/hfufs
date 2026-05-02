@@ -76,7 +76,7 @@ hstrobecks <- function(n, k, theta) {
         Ss <- Ss + base::abs(s_n[n,i]) * theta**i
       }
       Ss <- Ss / Sn
-      if(isTRUE(!base::is.nan(Ss) & !base::is.infinite(Ss))) {
+      if(isTRUE(!base::is.nan(Ss) && !base::is.infinite(Ss))) {
         return(Ss)
       }
     }

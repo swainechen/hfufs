@@ -77,11 +77,11 @@ hfufs <- function(n, k, theta) {
           S <- S + base::abs(s_n[n,i]) * theta**i
         }
         S <- S / Sn
-        if(isTRUE(!base::is.nan(S) & S > 0 & 1-S > 0)) {
+        if(isTRUE(!base::is.nan(S) && S > 0 && 1-S > 0)) {
           return(base::log(1-S) - base::log(S))
         }
       } else { 
-        if (isTRUE(!base::is.nan(Sp) & Sp > 0 & 1-Sp > 0)) {
+        if (isTRUE(!base::is.nan(Sp) && Sp > 0 && 1-Sp > 0)) {
           return(base::log(Sp) - base::log(1-Sp))
         }
       }

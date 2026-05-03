@@ -36,11 +36,11 @@ hfufs <- function(n, k, theta) {
       !is.numeric(k) || length(k) != 1 || !is.finite(k) || k < 0 ||
       !is.numeric(theta) || length(theta) != 1 || !is.finite(theta) || theta < 0 ||
       k > n) {
-    stop("n, k, and theta must be single finite numeric values; n > 0, k >= 0, theta >= 0, and k <= n")
+    base::stop("n, k, and theta must be single finite numeric values; n > 0, k >= 0, theta >= 0, and k <= n")
   }
 
   if (n > 1000000 || k > 1000000) {
-    stop("n and k must be <= 1,000,000 to prevent resource exhaustion")
+    base::stop("n and k must be <= 1,000,000 to prevent resource exhaustion")
   }
 
   # this value is pretty arbitrary, but it leaves things accurate when
@@ -61,10 +61,7 @@ hfufs <- function(n, k, theta) {
   # if n is small enough, then just calculate directly
   if(n <= 30) {
     s_n <- stirmat(n,n)
-    Sn <- 1;
-    for(i in 0:(n-1)) {
-      Sn <- Sn * (theta + i)
-    }
+    Sn <- base::exp(base::lgamma(theta + n) - base::lgamma(theta))
     if(!base::is.infinite(Sn)) {
       Sp <- 0
       for(i in k:n) {	# this is k:n for Fu's Fs, 1:k for Strobeck's S

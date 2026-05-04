@@ -32,15 +32,15 @@
 #' # -0.7374915
 #'
 hfufs <- function(n, k, theta) {
-  if (!is.numeric(n) || length(n) != 1 || !is.finite(n) || n <= 0 ||
-      !is.numeric(k) || length(k) != 1 || !is.finite(k) || k < 0 ||
-      !is.numeric(theta) || length(theta) != 1 || !is.finite(theta) || theta < 0 ||
-      k > n) {
-    stop("n, k, and theta must be single finite numeric values; n > 0, k >= 0, theta >= 0, and k <= n")
+  if (base::isTRUE(!base::is.numeric(n) || base::length(n) != 1 || !base::is.finite(n) || n <= 0 ||
+      !base::is.numeric(k) || base::length(k) != 1 || !base::is.finite(k) || k < 0 ||
+      !base::is.numeric(theta) || base::length(theta) != 1 || !base::is.finite(theta) || theta < 0 ||
+      k > n)) {
+    base::stop("n, k, and theta must be single finite numeric values; n > 0, k >= 0, theta >= 0, and k <= n")
   }
 
-  if (n > 1000000 || k > 1000000) {
-    stop("n and k must be <= 1,000,000 to prevent resource exhaustion")
+  if (base::isTRUE(n > 1000000 || k > 1000000)) {
+    base::stop("n and k must be <= 1,000,000 to prevent resource exhaustion")
   }
 
   # this value is pretty arbitrary, but it leaves things accurate when
@@ -52,36 +52,34 @@ hfufs <- function(n, k, theta) {
   # Strobeck's S is prob of k alleles or fewer, Fu's Sp is k alleles or greater
   # if k == 0 or 1, then Fu's Sp is 1, logit (Sp) is infinity
   # if k > 1 and theta == 0, then Sp is 0, logit (Sp) is -infinity
-  if(k <= 1) {
+  if (base::isTRUE(k <= 1)) {
     return(Inf)
   }
-  if(k > 1 && theta == 0) {
+  if (base::isTRUE(k > 1 && theta == 0)) {
     return(-Inf)
   }
   # if n is small enough, then just calculate directly
-  if(n <= 30) {
+  if (base::isTRUE(n <= 30)) {
     s_n <- stirmat(n,n)
-    Sn <- 1;
-    for(i in 0:(n-1)) {
-      Sn <- Sn * (theta + i)
-    }
-    if(!base::is.infinite(Sn)) {
+    # We use lgamma to avoid numerical overflow and large vector allocation
+    Sn <- base::exp(base::lgamma(theta + n) - base::lgamma(theta))
+    if (base::isTRUE(!base::is.infinite(Sn))) {
       Sp <- 0
-      for(i in k:n) {	# this is k:n for Fu's Fs, 1:k for Strobeck's S
+      for (i in k:n) {	# this is k:n for Fu's Fs, 1:k for Strobeck's S
         Sp <- Sp + base::abs(s_n[n,i]) * theta**i
       }
       Sp <- Sp / Sn
-      if (isTRUE((1 - Sp) < too_small)) {
+      if (base::isTRUE((1 - Sp) < too_small)) {
         S <- 0
-        for(i in 1:(k-1)) {
+        for (i in 1:(k-1)) {
           S <- S + base::abs(s_n[n,i]) * theta**i
         }
         S <- S / Sn
-        if(isTRUE(!base::is.nan(S) && S > 0 && 1-S > 0)) {
+        if (base::isTRUE(!base::is.nan(S) && S > 0 && 1-S > 0)) {
           return(base::log(1-S) - base::log(S))
         }
       } else { 
-        if (isTRUE(!base::is.nan(Sp) && Sp > 0 && 1-Sp > 0)) {
+        if (base::isTRUE(!base::is.nan(Sp) && Sp > 0 && 1-Sp > 0)) {
           return(base::log(Sp) - base::log(1-Sp))
         }
       }
@@ -95,7 +93,7 @@ hfufs <- function(n, k, theta) {
   for (i in k:n) {
     Sp <- Sp + base::exp(lstirling(n, i) + i * base::log(theta) - lSn)
   }
-  if (isTRUE((1 - Sp) < too_small)) {
+  if (base::isTRUE((1 - Sp) < too_small)) {
     S <- 0
     for (i in 1:(k-1)) {
       S <- S + base::exp(lstirling(n,i) + i * base::log(theta) - lSn)

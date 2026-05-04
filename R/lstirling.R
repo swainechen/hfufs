@@ -20,31 +20,31 @@
 #' # 267854.5
 #'
 lstirling <- function(n, m) {
-  if (!is.numeric(n) || length(n) != 1 || !is.finite(n) ||
-      !is.numeric(m) || length(m) != 1 || !is.finite(m)) {
-    stop("n and m must be single finite numeric values")
+  if (base::isTRUE(!base::is.numeric(n) || base::length(n) != 1 || !base::is.finite(n) ||
+      !base::is.numeric(m) || base::length(m) != 1 || !base::is.finite(m))) {
+    base::stop("n and m must be single finite numeric values")
   }
 
-  if (n > 1000000 || m > 1000000) {
-    stop("n and m must be <= 1,000,000 to prevent resource exhaustion")
+  if (base::isTRUE(n > 1000000 || m > 1000000)) {
+    base::stop("n and m must be <= 1,000,000 to prevent resource exhaustion")
   }
 
   # special cases first
-  if (m < 0 || n < 0 || n < m) {
+  if (base::isTRUE(m < 0 || n < 0 || n < m)) {
     # we really need everything to be positive to get a value
     return(-Inf)
-  } else if (m == 0 && n == 0) {
+  } else if (base::isTRUE(m == 0 && n == 0)) {
     return(0)
-  } else if (m == 0 && n > 0) {
+  } else if (base::isTRUE(m == 0 && n > 0)) {
     # the stirling number is 0 if m = 0 and n > 0
     return(-Inf)
-  } else if (m == 1 && n >= 1) {
+  } else if (base::isTRUE(m == 1 && n >= 1)) {
     # this ends up being (n-1)!, approx with log(x!) ~= x(log x) - x + 1
     # R has something built in - just use lgamma(n)
     return(base::lgamma(n))
-  } else if (n == m) {
+  } else if (base::isTRUE(n == m)) {
     return(0)
-  } else if (n > 1 && m > 1 && n > m) {
+  } else if (base::isTRUE(n > 1 && m > 1 && n > m)) {
     phiprime <- function(x) {
       base::digamma(x + n + 1) - base::digamma(x + 1) - m / x
     }

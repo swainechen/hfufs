@@ -38,45 +38,43 @@
 #' # 0.7576966
 #'
 hstrobecks <- function(n, k, theta) {
-  if (!is.numeric(n) || length(n) != 1 || !is.finite(n) || n <= 0 ||
-      !is.numeric(k) || length(k) != 1 || !is.finite(k) || k < 0 ||
-      !is.numeric(theta) || length(theta) != 1 || !is.finite(theta) || theta < 0 ||
-      k > n) {
-    stop("n, k, and theta must be single finite numeric values; n > 0, k >= 0, theta >= 0, and k <= n")
+  if (base::isTRUE(!base::is.numeric(n) || base::length(n) != 1 || !base::is.finite(n) || n <= 0 ||
+      !base::is.numeric(k) || base::length(k) != 1 || !base::is.finite(k) || k < 0 ||
+      !base::is.numeric(theta) || base::length(theta) != 1 || !base::is.finite(theta) || theta < 0 ||
+      k > n)) {
+    base::stop("n, k, and theta must be single finite numeric values; n > 0, k >= 0, theta >= 0, and k <= n")
   }
 
-  if (n > 1000000 || k > 1000000) {
-    stop("n and k must be <= 1,000,000 to prevent resource exhaustion")
+  if (base::isTRUE(n > 1000000 || k > 1000000)) {
+    base::stop("n and k must be <= 1,000,000 to prevent resource exhaustion")
   }
 
   # Strobeck's S is prob of k alleles or fewer, Fu's Sp is k alleles or greater
   # if k == 0, then Strobeck's S is 0
   # if k == 1, then Strobeck's S is 0 if theta > 0, 1 if theta == 0
   # Strobeck's S should be 1 if theta is 0 and k >= 1
-  if(k <= 1) {
-    if (k == 1 && theta == 0) {
+  if (base::isTRUE(k <= 1)) {
+    if (base::isTRUE(k == 1 && theta == 0)) {
       return(1)
     } else {
       return(0)
     }
   }
-  if(theta == 0) {
+  if (base::isTRUE(theta == 0)) {
     return(1)
   }
   # if n is small enough, then just calculate directly
-  if(n <= 30) {
+  if (base::isTRUE(n <= 30)) {
     s_n <- stirmat(n,n)
-    Sn <- 1;
-    for(i in 0:(n-1)) {
-      Sn <- Sn * (theta + i)
-    }
-    if(!base::is.infinite(Sn)) {
+    # We use lgamma to avoid numerical overflow and large vector allocation
+    Sn <- base::exp(base::lgamma(theta + n) - base::lgamma(theta))
+    if (base::isTRUE(!base::is.infinite(Sn))) {
       Ss <- 0
-      for(i in 1:k) {	# this is 1:k for Strobeck's S, k:n for Fu's Fs
+      for (i in 1:k) {	# this is 1:k for Strobeck's S, k:n for Fu's Fs
         Ss <- Ss + base::abs(s_n[n,i]) * theta**i
       }
       Ss <- Ss / Sn
-      if(isTRUE(!base::is.nan(Ss) && !base::is.infinite(Ss))) {
+      if (base::isTRUE(!base::is.nan(Ss) && !base::is.infinite(Ss))) {
         return(Ss)
       }
     }

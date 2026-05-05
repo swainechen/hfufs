@@ -32,14 +32,14 @@
 #' # -0.7374915
 #'
 hfufs <- function(n, k, theta) {
-  if (base::isTRUE(!base::is.numeric(n) || base::length(n) != 1 || !base::is.finite(n) || n <= 0 ||
-      !base::is.numeric(k) || base::length(k) != 1 || !base::is.finite(k) || k < 0 ||
-      !base::is.numeric(theta) || base::length(theta) != 1 || !base::is.finite(theta) || theta < 0 ||
-      k > n)) {
+  if (!is.numeric(n) || length(n) != 1 || !is.finite(n) || n <= 0 ||
+      !is.numeric(k) || length(k) != 1 || !is.finite(k) || k < 0 ||
+      !is.numeric(theta) || length(theta) != 1 || !is.finite(theta) || theta < 0 ||
+      k > n) {
     base::stop("n, k, and theta must be single finite numeric values; n > 0, k >= 0, theta >= 0, and k <= n")
   }
 
-  if (base::isTRUE(n > 1000000 || k > 1000000)) {
+  if (n > 1000000 || k > 1000000) {
     base::stop("n and k must be <= 1,000,000 to prevent resource exhaustion")
   }
 
@@ -61,9 +61,8 @@ hfufs <- function(n, k, theta) {
   # if n is small enough, then just calculate directly
   if (base::isTRUE(n <= 30)) {
     s_n <- stirmat(n,n)
-    # We use lgamma to avoid numerical overflow and large vector allocation
     Sn <- base::exp(base::lgamma(theta + n) - base::lgamma(theta))
-    if (base::isTRUE(!base::is.infinite(Sn))) {
+    if(!base::is.infinite(Sn)) {
       Sp <- 0
       for (i in k:n) {	# this is k:n for Fu's Fs, 1:k for Strobeck's S
         Sp <- Sp + base::abs(s_n[n,i]) * theta**i

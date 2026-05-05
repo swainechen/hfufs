@@ -38,14 +38,14 @@
 #' # 0.7576966
 #'
 hstrobecks <- function(n, k, theta) {
-  if (!is.numeric(n) || length(n) != 1 || !is.finite(n) || n <= 0 ||
-      !is.numeric(k) || length(k) != 1 || !is.finite(k) || k < 0 ||
-      !is.numeric(theta) || length(theta) != 1 || !is.finite(theta) || theta < 0 ||
-      k > n) {
+  if (base::isTRUE(!base::is.numeric(n) || base::length(n) != 1 || !base::is.finite(n) || n <= 0 ||
+      !base::is.numeric(k) || base::length(k) != 1 || !base::is.finite(k) || k < 0 ||
+      !base::is.numeric(theta) || base::length(theta) != 1 || !base::is.finite(theta) || theta < 0 ||
+      k > n)) {
     base::stop("n, k, and theta must be single finite numeric values; n > 0, k >= 0, theta >= 0, and k <= n")
   }
 
-  if (n > 1000000 || k > 1000000) {
+  if (base::isTRUE(n > 1000000 || k > 1000000)) {
     base::stop("n and k must be <= 1,000,000 to prevent resource exhaustion")
   }
 
@@ -67,7 +67,7 @@ hstrobecks <- function(n, k, theta) {
   if (base::isTRUE(n <= 30)) {
     s_n <- stirmat(n,n)
     Sn <- base::exp(base::lgamma(theta + n) - base::lgamma(theta))
-    if(!base::is.infinite(Sn)) {
+    if(base::isTRUE(!base::is.infinite(Sn))) {
       Ss <- 0
       for (i in 1:k) {	# this is 1:k for Strobeck's S, k:n for Fu's Fs
         Ss <- Ss + base::abs(s_n[n,i]) * theta**i

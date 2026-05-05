@@ -35,26 +35,26 @@
 #'
 stirmat <- function(n, m) {
   # from James Cai PGEToolbox
-  if (!is.numeric(n) || length(n) != 1 || !is.finite(n) ||
-      !is.numeric(m) || length(m) != 1 || !is.finite(m)) {
-    stop("n and m must be single finite numeric values")
+  if (base::isTRUE(!base::is.numeric(n) || base::length(n) != 1 || !base::is.finite(n) ||
+      !base::is.numeric(m) || base::length(m) != 1 || !base::is.finite(m))) {
+    base::stop("n and m must be single finite numeric values")
   }
 
-  if (n > 2000 || m > 2000) {
-    stop("n and m must be <= 2000 to prevent excessive memory allocation")
+  if (base::isTRUE(n > 2000 || m > 2000)) {
+    base::stop("n and m must be <= 2000 to prevent excessive memory allocation")
   }
 
-  if (n <= 0 || m <= 0) {
+  if (base::isTRUE(n <= 0 || m <= 0)) {
     return(NULL)
   }
 
-  s_n <- matrix(0, nrow = n, ncol = m)
+  s_n <- base::matrix(0, nrow = n, ncol = m)
   s_n[1, 1] <- 1
 
-  if (n > 1) {
+  if (base::isTRUE(n > 1)) {
     for (i in 2:n) {
       s_n[i, 1] <- -(i - 1) * s_n[i - 1, 1]
-      if (m > 1) {
+      if (base::isTRUE(m > 1)) {
         for (j in 2:m) {
           s_n[i, j] <- s_n[i - 1, j - 1] - (i - 1) * s_n[i - 1, j]
         }

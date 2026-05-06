@@ -84,13 +84,19 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
       n$pi <- diversity_list[[1]][,3]
 
       h <- slide_go@region.stats@haplotype.counts
+      if (base::length(h) == 0) {
+        base::stop("slide_go@region.stats@haplotype.counts is an empty list")
+      }
       n$n.sequences <- base::as.numeric(base::lapply(h, base::sum))
       templist <- base::lapply(h, base::ncol)
       templist[base::sapply(templist, base::is.null)] <- NA
       n$n.haplotypes <- base::as.numeric(templist)
       n$n.singleton.haplotypes <- base::as.numeric(base::lapply(h, function(x) base::length(base::which(x==1))))
-      for(i in base::which(base::is.nan(n$Fu.F_S))) {
-        n$Fu.F_S[i] <- afufs(n$n.sequences[i], n$n.haplotypes[i], n$pi[i])
+      for(i in base::which(base::is.na(n$Fu.F_S))) {
+        n$Fu.F_S[i] <- base::tryCatch(
+          { afufs(n$n.sequences[i], n$n.haplotypes[i], n$pi[i]) },
+          error = function(e) { return(NaN) }
+        )
       }
     } else {
       go <- PopGenome::diversity.stats(go, pi=TRUE)
@@ -120,8 +126,11 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
       n$n.haplotypes <- base::ncol(h)
       n$n.singleton.haplotypes <- base::length(base::which(h == 1))
       n$n.consensus.haplotypes <- base::max(h)
-      for(i in base::which(base::is.nan(n$Fu.F_S))) {
-        n$Fu.F_S[i] <- afufs(n$n.sequences[i], n$n.haplotypes[i], n$pi[i])
+      for(i in base::which(base::is.na(n$Fu.F_S))) {
+        n$Fu.F_S[i] <- base::tryCatch(
+          { afufs(n$n.sequences[i], n$n.haplotypes[i], n$pi[i]) },
+          error = function(e) { return(NaN) }
+        )
       }
     }
     return(n)

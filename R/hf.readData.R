@@ -59,12 +59,15 @@ hf.readData <- function(fasta_file) {
     # Preserve the original filename to maintain sample identifiers in PopGenome.
     # basename() is used to prevent path traversal when constructing the temporary path.
     orig_basename <- base::basename(fasta_file)
+    if (orig_basename == "" || orig_basename == "." || orig_basename == "..") {
+      orig_basename <- "input.fasta"
+    }
     max_size <- 2 * 1024 * 1024 * 1024 # 2GB limit for DoS protection (disk exhaustion)
 
     if (base::grepl("\\.gz$", fasta_file, ignore.case = TRUE)) {
       # Decompress while stripping .gz extension
       decompressed_basename <- base::sub("\\.gz$", "", orig_basename, ignore.case = TRUE)
-      if (decompressed_basename == "" || decompressed_basename == ".") {
+      if (decompressed_basename == "" || decompressed_basename == "." || decompressed_basename == "..") {
         decompressed_basename <- "input.fasta"
       }
       hf.tempfile <- base::file.path(hf.tempdir, decompressed_basename)

@@ -49,7 +49,7 @@ hf.readData <- function(fasta_file) {
       iter <- iter + 1
     }
     if (!base::dir.create(hf.tempdir, mode = "0700")) {
-      base::stop(base::paste0("Failed to create temporary directory: ", hf.tempdir))
+      base::stop("Failed to create temporary directory for PopGenome data staging")
     }
     # Ensure temporary directory is cleaned up on exit to prevent resource leaks.
     # We use add = TRUE to avoid overwriting any existing exit handlers.

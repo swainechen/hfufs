@@ -43,12 +43,22 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
     base::stop("slide must be a single non-NA logical value")
   }
 
-  if (!base::is.numeric(window) || base::length(window) != 1 || !base::is.finite(window) || window <= 0 || window > 2000000000) {
-    base::stop("window must be a single finite positive numeric value <= 2,000,000,000")
+  if (!base::is.numeric(window) || base::length(window) != 1 || !base::is.finite(window) || window < 1 || window > 2000000000) {
+    base::stop("window must be a single finite numeric value between 1 and 2,000,000,000")
   }
 
-  if (!base::is.numeric(step) || base::length(step) != 1 || !base::is.finite(step) || step <= 0 || step > 2000000000) {
-    base::stop("step must be a single finite positive numeric value <= 2,000,000,000")
+  if (!base::is.numeric(step) || base::length(step) != 1 || !base::is.finite(step) || step < 1 || step > 2000000000) {
+    base::stop("step must be a single finite numeric value between 1 and 2,000,000,000")
+  }
+
+  # DoS Protection: Limit the number of sliding windows to 1,000,000
+  if (base::isTRUE(slide)) {
+    # PopGenome treats n.sites as a list when multiple regions are loaded.
+    n_sites <- base::sum(base::as.numeric(go@n.sites))
+    num_windows <- base::ceiling((n_sites - window + 1) / step)
+    if (base::isTRUE(num_windows > 1000000)) {
+      base::stop("The requested sliding window parameters would generate > 1,000,000 windows (DoS protection)")
+    }
   }
 
   # takes in a GENOME object as from PopGenome readData
@@ -73,8 +83,11 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
       }
       n <- base::data.frame(neutrality_list[[1]])
 
-      n$x.start <- base::as.numeric(base::sapply(base::strsplit(slide_go@region.names, split=" - "), "[")[1,])
-      n$x.end <- base::as.numeric(base::sapply(base::strsplit(base::sub(" :", "", slide_go@region.names), split=" - "), "[")[2,])
+      # Robustly extract start/end coordinates. We avoid [1,] and [2,] indexing which can be
+      # fragile depending on how sapply simplifies the list of vectors.
+      region_splits <- base::strsplit(base::sub(" :$", "", slide_go@region.names), split=" - ")
+      n$x.start <- base::as.numeric(base::sapply(region_splits, "[", 1))
+      n$x.end <- base::as.numeric(base::sapply(region_splits, "[", 2))
       n$numindividuals <- numindividuals
 
       diversity_list <- PopGenome::get.diversity(slide_go)

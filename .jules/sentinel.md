@@ -49,3 +49,8 @@ SENTINEL'S JOURNAL - CRITICAL LEARNINGS ONLY
 **Vulnerability:** Potential for silent non-convergence or precision loss in numerical root-finding, leading to incorrect biological statistics.
 **Learning:** `stats::uniroot` in R by default returns a result even if it doesn't converge within `maxiter`, only issuing a warning. In security-sensitive or high-precision contexts, this can lead to "silent failures" or exploitation of numerical instability.
 **Prevention:** Always enable `check.conv = TRUE` and set an explicit tolerance (e.g., `tol = .Machine$double.eps`) when calling `uniroot`. Wrap the call in a `tryCatch` that explicitly handles both `error` and `warning` to ensure convergence failures are caught and handled securely (e.g., by falling back or failing safely).
+
+## 2024-06-02 - Path Traversal via Filename Manipulation in R
+**Vulnerability:** Path traversal when constructing temporary file paths using filenames derived from user input via `basename()` or `sub()`.
+**Learning:** `base::basename()` can return `"."` or `".."` in certain cases (though usually it returns the last part of the path). More importantly, using `base::sub()` to strip extensions (like `.gz`) can transform a seemingly safe filename like `...gz` into `..`, which leads to path traversal when joined with a directory path using `base::file.path()`.
+**Prevention:** After using `basename()` or `sub()` on a filename that will be used to construct a local file path, always explicitly validate that the resulting string is not `""`, `"."`, or `".."` and provide a safe fallback (e.g., `"input.fasta"`) if it is.

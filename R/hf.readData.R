@@ -122,6 +122,8 @@ hf.readData <- function(fasta_file) {
 
     return(res)
   } else {
-    base::stop(base::paste0("fasta_file '", fasta_file, "' does not exist or is a directory"))
+    # We use basename() here to avoid leaking the full path to the user in case of error,
+    # protecting internal file system structure.
+    base::stop(base::paste0("fasta_file '", base::basename(fasta_file), "' does not exist or is a directory"))
   }
 }

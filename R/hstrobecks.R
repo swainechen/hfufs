@@ -40,9 +40,9 @@
 hstrobecks <- function(n, k, theta) {
   if (base::isTRUE(!base::is.numeric(n) || base::length(n) != 1 || !base::is.finite(n) || n <= 0 ||
       !base::is.numeric(k) || base::length(k) != 1 || !base::is.finite(k) || k < 0 ||
-      !base::is.numeric(theta) || base::length(theta) != 1 || !base::is.finite(theta) || theta < 0 ||
+      !base::is.numeric(theta) || base::length(theta) != 1 || !base::is.finite(theta) || theta < 0 || theta > 2000000000 ||
       k > n)) {
-    base::stop("n, k, and theta must be single finite numeric values; n > 0, k >= 0, theta >= 0, and k <= n")
+    base::stop("n, k, and theta must be single finite numeric values; n > 0, k >= 0, 0 <= theta <= 2,000,000,000, and k <= n")
   }
 
   if (base::isTRUE(n > 1000000 || k > 1000000)) {

@@ -72,7 +72,7 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
       base::stop("The GENOME object contains no individuals in the first population")
     }
 
-    if (slide) {
+    if (base::isTRUE(slide)) {
       slide_go <- PopGenome::sliding.window.transform(go, width=window, jump=step, type=2, whole.data=TRUE)
       slide_go <- PopGenome::diversity.stats(slide_go, pi=TRUE)
       slide_go <- PopGenome::neutrality.stats(slide_go, detail=TRUE, do.R2=TRUE)

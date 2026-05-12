@@ -22,6 +22,7 @@ devtools::install_github("swainechen/hfufs")
 ```
 ## Basic usage
 ```
+library(hfufs)
 n <- 100
 k <- 30
 theta <- 12.345

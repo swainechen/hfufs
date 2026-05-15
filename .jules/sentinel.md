@@ -54,3 +54,8 @@ SENTINEL'S JOURNAL - CRITICAL LEARNINGS ONLY
 **Vulnerability:** Path traversal when constructing temporary file paths using filenames derived from user input via `basename()` or `sub()`.
 **Learning:** `base::basename()` can return `"."` or `".."` in certain cases (though usually it returns the last part of the path). More importantly, using `base::sub()` to strip extensions (like `.gz`) can transform a seemingly safe filename like `...gz` into `..`, which leads to path traversal when joined with a directory path using `base::file.path()`.
 **Prevention:** After using `basename()` or `sub()` on a filename that will be used to construct a local file path, always explicitly validate that the resulting string is not `""`, `"."`, or `".."` and provide a safe fallback (e.g., `"input.fasta"`) if it is.
+
+## 2026-04-16 - Type Safety and DoS Protection in R List Coercion
+**Vulnerability:** Process crashes (Denial of Service) when attempting to coerce complex list structures returned by dependencies (like `PopGenome`) directly to numeric vectors.
+**Learning:** In R, `as.numeric()` on a list will fail with an error like `(list) object cannot be coerced to type 'double'` if the list contains anything other than single-element vectors. This can crash the analysis pipeline if dependencies return unexpected structures (e.g., nested lists for multi-region genomic data).
+**Prevention:** Use `base::unlist()` before `base::as.numeric()` when summing or flattening lists of counts. Use `base::vapply()` instead of `base::as.numeric(base::lapply(...))` to enforce return types and lengths, ensuring that unexpected return values from external packages are caught early and handled safely.

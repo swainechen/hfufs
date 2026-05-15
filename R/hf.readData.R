@@ -36,6 +36,16 @@ hf.readData <- function(fasta_file) {
   # This is more robust than file.exists() as it excludes special files like FIFOs
   # that could cause the process to block, while remaining portable across platforms.
   if (utils::file_test("-f", fasta_file)) {
+    if (!utils::file_test("-r", fasta_file)) {
+      base::stop(base::paste0("fasta_file ", base::shQuote(base::basename(fasta_file)), " is not readable"))
+    }
+
+    max_size <- 2 * 1024 * 1024 * 1024 # 2GB limit for DoS protection (disk exhaustion)
+    file_info <- base::file.info(fasta_file)
+    if (base::isTRUE(file_info$size > max_size)) {
+      base::stop(base::paste0("fasta_file ", base::shQuote(base::basename(fasta_file)), " exceeds 2GB limit (DoS protection)"))
+    }
+
     fasta_file <- base::normalizePath(fasta_file)
 
     # readData wants a clean directory with sequences
@@ -49,7 +59,7 @@ hf.readData <- function(fasta_file) {
       iter <- iter + 1
     }
     if (!base::dir.create(hf.tempdir, mode = "0700")) {
-      base::stop("Failed to create temporary directory for PopGenome data staging")
+      base::stop(base::paste0("Failed to create temporary directory for staging ", base::shQuote(base::basename(fasta_file))))
     }
     # Ensure temporary directory is cleaned up on exit to prevent resource leaks.
     # We use add = TRUE to avoid overwriting any existing exit handlers.
@@ -62,7 +72,6 @@ hf.readData <- function(fasta_file) {
     if (orig_basename == "" || orig_basename == "." || orig_basename == "..") {
       orig_basename <- "input.fasta"
     }
-    max_size <- 2 * 1024 * 1024 * 1024 # 2GB limit for DoS protection (disk exhaustion)
 
     if (base::grepl("\\.gz$", fasta_file, ignore.case = TRUE)) {
       # Decompress while stripping .gz extension
@@ -98,14 +107,10 @@ hf.readData <- function(fasta_file) {
     } else {
       hf.tempfile <- base::file.path(hf.tempdir, orig_basename)
       # Use file.symlink for performance with large genomic files, as per bioinformatics standards.
-      file_info <- base::file.info(fasta_file)
-      if (base::isTRUE(file_info$size > max_size)) {
-        base::stop("File exceeds 2GB limit (DoS protection)")
-      }
       if (!base::file.symlink(fasta_file, hf.tempfile)) {
         # Fallback to file.copy if symlink fails (e.g., on some Windows configurations)
         if (!base::file.copy(fasta_file, hf.tempfile, overwrite = TRUE)) {
-          base::stop("Failed to link or copy fasta file to temporary directory")
+          base::stop(base::paste0("Failed to link or copy fasta file ", base::shQuote(base::basename(fasta_file)), " to temporary directory"))
         }
       }
     }
@@ -123,7 +128,7 @@ hf.readData <- function(fasta_file) {
     return(res)
   } else {
     # We use basename() here to avoid leaking the full path to the user in case of error,
-    # protecting internal file system structure.
-    base::stop(base::paste0("fasta_file '", base::basename(fasta_file), "' does not exist or is a directory"))
+    # protecting internal file system structure. We use shQuote to sanitize the filename.
+    base::stop(base::paste0("fasta_file ", base::shQuote(base::basename(fasta_file)), " does not exist or is a directory"))
   }
 }

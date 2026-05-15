@@ -54,7 +54,8 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
   # DoS Protection: Limit the number of sliding windows to 1,000,000
   if (base::isTRUE(slide)) {
     # PopGenome treats n.sites as a list when multiple regions are loaded.
-    n_sites <- base::sum(base::as.numeric(go@n.sites))
+    # We use unlist() before as.numeric() to safely handle list inputs and prevent coercion crashes.
+    n_sites <- base::sum(base::as.numeric(base::unlist(go@n.sites)))
     num_windows <- base::ceiling((n_sites - window + 1) / step)
     if (base::isTRUE(num_windows > 1000000)) {
       base::stop("The requested sliding window parameters would generate > 1,000,000 windows (DoS protection)")
@@ -100,11 +101,17 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
       if (base::length(h) == 0) {
         base::stop("slide_go@region.stats@haplotype.counts is an empty list")
       }
-      n$n.sequences <- base::as.numeric(base::lapply(h, base::sum))
-      templist <- base::lapply(h, base::ncol)
-      templist[base::sapply(templist, base::is.null)] <- NA
-      n$n.haplotypes <- base::as.numeric(templist)
-      n$n.singleton.haplotypes <- base::as.numeric(base::lapply(h, function(x) base::length(base::which(x==1))))
+      # Use vapply instead of as.numeric(lapply) for better type safety and to prevent process crashes
+      # during list-to-numeric coercion if PopGenome returns unexpected structures.
+      n$n.sequences <- base::vapply(h, base::sum, FUN.VALUE = 0.0)
+      n$n.haplotypes <- base::vapply(h, function(x) {
+        nc <- base::ncol(x)
+        if (base::is.null(nc)) return(base::as.numeric(NA))
+        return(base::as.numeric(nc))
+      }, FUN.VALUE = 0.0)
+      n$n.singleton.haplotypes <- base::vapply(h, function(x) {
+        base::as.numeric(base::length(base::which(x == 1)))
+      }, FUN.VALUE = 0.0)
       for(i in base::which(base::is.na(n$Fu.F_S))) {
         n$Fu.F_S[i] <- base::tryCatch(
           { afufs(n$n.sequences[i], n$n.haplotypes[i], n$pi[i]) },

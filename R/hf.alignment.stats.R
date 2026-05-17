@@ -95,6 +95,10 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
       if (base::length(diversity_list) == 0) {
         base::stop("PopGenome::get.diversity(slide_go) returned an empty list")
       }
+      # Security: Validate diversity matrix dimensions before indexing to prevent out-of-bounds errors.
+      if (base::is.null(base::ncol(diversity_list[[1]])) || base::ncol(diversity_list[[1]]) < 3) {
+        base::stop("PopGenome::get.diversity(slide_go) returned a matrix with insufficient columns (expected at least 3 for pi)")
+      }
       n$pi <- diversity_list[[1]][,3]
 
       h <- slide_go@region.stats@haplotype.counts
@@ -134,6 +138,10 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
       if (base::length(diversity_list) == 0) {
         base::stop("PopGenome::get.diversity(go) returned an empty list")
       }
+      # Security: Validate diversity matrix dimensions before indexing to prevent out-of-bounds errors.
+      if (base::is.null(base::ncol(diversity_list[[1]])) || base::ncol(diversity_list[[1]]) < 3) {
+        base::stop("PopGenome::get.diversity(go) returned a matrix with insufficient columns (expected at least 3 for pi)")
+      }
       n$pi <- diversity_list[[1]][,3]
 
       haplotype_counts <- go@region.stats@haplotype.counts
@@ -143,7 +151,13 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
       h <- haplotype_counts[[1]]
 
       n$n.sequences <- base::sum(h)
-      n$n.haplotypes <- base::ncol(h)
+      # Security: Defensive handling of return structure from external package to prevent coercion crashes.
+      nc <- base::ncol(h)
+      if (base::is.null(nc)) {
+        n$n.haplotypes <- base::as.numeric(NA)
+      } else {
+        n$n.haplotypes <- base::as.numeric(nc)
+      }
       n$n.singleton.haplotypes <- base::length(base::which(h == 1))
       n$n.consensus.haplotypes <- base::max(h)
       for(i in base::which(base::is.na(n$Fu.F_S))) {

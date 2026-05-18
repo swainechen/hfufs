@@ -84,11 +84,11 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
       }
       n <- base::data.frame(neutrality_list[[1]])
 
-      # Robustly extract start/end coordinates. We avoid [1,] and [2,] indexing which can be
-      # fragile depending on how sapply simplifies the list of vectors.
+      # Robustly extract start/end coordinates. We use vapply to ensure numeric return types
+      # and prevent unpredictable simplification, providing better type safety.
       region_splits <- base::strsplit(base::sub(" :$", "", slide_go@region.names), split=" - ")
-      n$x.start <- base::as.numeric(base::sapply(region_splits, "[", 1))
-      n$x.end <- base::as.numeric(base::sapply(region_splits, "[", 2))
+      n$x.start <- base::vapply(region_splits, function(x) base::as.numeric(x[1]), FUN.VALUE = 0.0)
+      n$x.end <- base::vapply(region_splits, function(x) base::as.numeric(x[2]), FUN.VALUE = 0.0)
       n$numindividuals <- numindividuals
 
       diversity_list <- PopGenome::get.diversity(slide_go)
@@ -101,20 +101,27 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
       }
       n$pi <- diversity_list[[1]][,3]
 
-      h <- slide_go@region.stats@haplotype.counts
-      if (base::length(h) == 0) {
+      h_list <- slide_go@region.stats@haplotype.counts
+      if (base::length(h_list) == 0) {
         base::stop("slide_go@region.stats@haplotype.counts is an empty list")
       }
-      # Use vapply instead of as.numeric(lapply) for better type safety and to prevent process crashes
-      # during list-to-numeric coercion if PopGenome returns unexpected structures.
-      n$n.sequences <- base::vapply(h, base::sum, FUN.VALUE = 0.0)
-      n$n.haplotypes <- base::vapply(h, function(x) {
+      # Use vapply for type safety. We index [[1]] to get the first population, ensuring
+      # consistency with neutrality and diversity stats. We handle both vector and matrix
+      # return structures from PopGenome.
+      n$n.sequences <- base::vapply(h_list, function(reg) {
+        base::sum(reg[[1]])
+      }, FUN.VALUE = 0.0)
+      n$n.haplotypes <- base::vapply(h_list, function(reg) {
+        x <- reg[[1]]
         nc <- base::ncol(x)
-        if (base::is.null(nc)) return(base::as.numeric(NA))
+        if (base::is.null(nc)) return(base::as.numeric(base::length(base::which(x > 0))))
         return(base::as.numeric(nc))
       }, FUN.VALUE = 0.0)
-      n$n.singleton.haplotypes <- base::vapply(h, function(x) {
-        base::as.numeric(base::length(base::which(x == 1)))
+      n$n.singleton.haplotypes <- base::vapply(h_list, function(reg) {
+        base::as.numeric(base::length(base::which(reg[[1]] == 1)))
+      }, FUN.VALUE = 0.0)
+      n$n.consensus.haplotypes <- base::vapply(h_list, function(reg) {
+        base::as.numeric(base::max(reg[[1]]))
       }, FUN.VALUE = 0.0)
       for(i in base::which(base::is.na(n$Fu.F_S))) {
         n$Fu.F_S[i] <- base::tryCatch(
@@ -144,22 +151,29 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
       }
       n$pi <- diversity_list[[1]][,3]
 
-      haplotype_counts <- go@region.stats@haplotype.counts
-      if (base::length(haplotype_counts) == 0) {
+      h_list <- go@region.stats@haplotype.counts
+      if (base::length(h_list) == 0) {
         base::stop("go@region.stats@haplotype.counts is an empty list")
       }
-      h <- haplotype_counts[[1]]
 
-      n$n.sequences <- base::sum(h)
-      # Security: Defensive handling of return structure from external package to prevent coercion crashes.
-      nc <- base::ncol(h)
-      if (base::is.null(nc)) {
-        n$n.haplotypes <- base::as.numeric(NA)
-      } else {
-        n$n.haplotypes <- base::as.numeric(nc)
-      }
-      n$n.singleton.haplotypes <- base::length(base::which(h == 1))
-      n$n.consensus.haplotypes <- base::max(h)
+      # Use vapply for type safety. We index [[1]] to get the first population, ensuring
+      # consistency with neutrality and diversity stats. We handle both vector and matrix
+      # return structures from PopGenome.
+      n$n.sequences <- base::vapply(h_list, function(reg) {
+        base::sum(reg[[1]])
+      }, FUN.VALUE = 0.0)
+      n$n.haplotypes <- base::vapply(h_list, function(reg) {
+        x <- reg[[1]]
+        nc <- base::ncol(x)
+        if (base::is.null(nc)) return(base::as.numeric(base::length(base::which(x > 0))))
+        return(base::as.numeric(nc))
+      }, FUN.VALUE = 0.0)
+      n$n.singleton.haplotypes <- base::vapply(h_list, function(reg) {
+        base::as.numeric(base::length(base::which(reg[[1]] == 1)))
+      }, FUN.VALUE = 0.0)
+      n$n.consensus.haplotypes <- base::vapply(h_list, function(reg) {
+        base::as.numeric(base::max(reg[[1]]))
+      }, FUN.VALUE = 0.0)
       for(i in base::which(base::is.na(n$Fu.F_S))) {
         n$Fu.F_S[i] <- base::tryCatch(
           { afufs(n$n.sequences[i], n$n.haplotypes[i], n$pi[i]) },

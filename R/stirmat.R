@@ -35,9 +35,9 @@
 #'
 stirmat <- function(n, m) {
   # from James Cai PGEToolbox
-  if (base::isTRUE(!base::is.numeric(n) || base::length(n) != 1 || !base::is.finite(n) ||
-      !base::is.numeric(m) || base::length(m) != 1 || !base::is.finite(m))) {
-    base::stop("n and m must be single finite numeric values")
+  if (base::isTRUE(!base::is.numeric(n) || base::length(n) != 1 || !base::is.finite(n) || n %% 1 != 0 ||
+      !base::is.numeric(m) || base::length(m) != 1 || !base::is.finite(m) || m %% 1 != 0)) {
+    base::stop("n and m must be single finite numeric values; n and m must be whole numbers")
   }
 
   if (base::isTRUE(n > 2000 || m > 2000)) {

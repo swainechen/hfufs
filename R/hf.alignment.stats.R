@@ -51,6 +51,11 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
     base::stop("step must be a single finite numeric value between 1 and 2,000,000,000")
   }
 
+  # DoS Protection: Limit the number of regions to 1,000,000
+  if (base::isTRUE(base::length(go@n.sites) > 1000000)) {
+    base::stop("The GENOME object contains > 1,000,000 regions (DoS protection)")
+  }
+
   # DoS Protection: Limit the number of sliding windows to 1,000,000
   if (base::isTRUE(slide)) {
     # PopGenome treats n.sites as a list when multiple regions are loaded.
@@ -68,6 +73,12 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
     if (base::length(individuals_list) == 0) {
       base::stop("No individuals found in the GENOME object")
     }
+
+    # DoS Protection: Limit the number of populations to 1,000
+    if (base::isTRUE(base::length(individuals_list) > 1000)) {
+      base::stop("The GENOME object contains > 1,000 populations (DoS protection)")
+    }
+
     numindividuals <- base::length(individuals_list[[1]])
     if (numindividuals == 0) {
       base::stop("The GENOME object contains no individuals in the first population")

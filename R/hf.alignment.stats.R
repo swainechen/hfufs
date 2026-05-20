@@ -75,8 +75,8 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
     }
 
     # DoS Protection: Limit the number of populations to 1,000
-    if (base::isTRUE(base::length(individuals_list) > 1000)) {
-      base::stop("The GENOME object contains > 1,000 populations (DoS protection)")
+    if (base::isTRUE(base::length(individuals_list) > 1000000)) {
+      base::stop("The GENOME object contains > 1,000,000 populations (DoS protection)")
     }
 
     numindividuals <- base::length(individuals_list[[1]])

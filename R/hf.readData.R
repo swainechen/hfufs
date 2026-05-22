@@ -28,8 +28,8 @@ hf.readData <- function(fasta_file) {
     base::stop("The 'PopGenome' package is required but not installed.")
   }
 
-  if (!base::is.character(fasta_file) || base::length(fasta_file) != 1) {
-    base::stop("fasta_file must be a single character string")
+  if (!base::is.character(fasta_file) || base::length(fasta_file) != 1 || base::is.na(fasta_file)) {
+    base::stop("fasta_file must be a single character string and not NA")
   }
 
   # Use utils::file_test("-f", ...) to ensure it is a regular file.

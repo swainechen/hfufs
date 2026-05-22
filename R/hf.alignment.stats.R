@@ -61,9 +61,15 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
     # PopGenome treats n.sites as a list when multiple regions are loaded.
     # We use unlist() before as.numeric() to safely handle list inputs and prevent coercion crashes.
     n_sites <- base::sum(base::as.numeric(base::unlist(go@n.sites)))
+    if (!base::is.finite(n_sites) || n_sites < 1) {
+      base::stop("The GENOME object contains no sites or invalid site counts")
+    }
+    if (base::isTRUE(window > n_sites)) {
+      base::stop("The requested window size exceeds the total number of sites in the GENOME object")
+    }
     num_windows <- base::ceiling((n_sites - window + 1) / step)
-    if (base::isTRUE(num_windows > 1000000)) {
-      base::stop("The requested sliding window parameters would generate > 1,000,000 windows (DoS protection)")
+    if (!base::is.finite(num_windows) || base::isTRUE(num_windows > 1000000) || base::isTRUE(num_windows < 1)) {
+      base::stop("The requested sliding window parameters would generate > 1,000,000 windows or an invalid number of windows (DoS protection)")
     }
   }
 
@@ -110,11 +116,20 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
       if (base::is.null(base::ncol(diversity_list[[1]])) || base::ncol(diversity_list[[1]]) < 3) {
         base::stop("PopGenome::get.diversity(slide_go) returned a matrix with insufficient columns (expected at least 3 for pi)")
       }
+
+      # Security: Verify that neutrality and diversity stats have the same number of regions.
+      if (base::isTRUE(base::nrow(n) != base::nrow(diversity_list[[1]]))) {
+        base::stop("Mismatch in number of regions between neutrality and diversity statistics")
+      }
       n$pi <- diversity_list[[1]][,3]
 
       h_list <- slide_go@region.stats@haplotype.counts
       if (base::length(h_list) == 0) {
         base::stop("slide_go@region.stats@haplotype.counts is an empty list")
+      }
+      # Security: Verify that haplotype counts have the same number of regions.
+      if (base::isTRUE(base::nrow(n) != base::length(h_list))) {
+        base::stop("Mismatch in number of regions between statistics and haplotype counts")
       }
       # Use vapply for type safety. We index [[1]] to get the first population, ensuring
       # consistency with neutrality and diversity stats. We handle both vector and matrix
@@ -160,11 +175,20 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
       if (base::is.null(base::ncol(diversity_list[[1]])) || base::ncol(diversity_list[[1]]) < 3) {
         base::stop("PopGenome::get.diversity(go) returned a matrix with insufficient columns (expected at least 3 for pi)")
       }
+
+      # Security: Verify that neutrality and diversity stats have the same number of regions.
+      if (base::isTRUE(base::nrow(n) != base::nrow(diversity_list[[1]]))) {
+        base::stop("Mismatch in number of regions between neutrality and diversity statistics")
+      }
       n$pi <- diversity_list[[1]][,3]
 
       h_list <- go@region.stats@haplotype.counts
       if (base::length(h_list) == 0) {
         base::stop("go@region.stats@haplotype.counts is an empty list")
+      }
+      # Security: Verify that haplotype counts have the same number of regions.
+      if (base::isTRUE(base::nrow(n) != base::length(h_list))) {
+        base::stop("Mismatch in number of regions between statistics and haplotype counts")
       }
 
       # Use vapply for type safety. We index [[1]] to get the first population, ensuring

@@ -118,7 +118,7 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
       }
 
       # Security: Verify that neutrality and diversity stats have the same number of regions.
-      if (base::nrow(n) != base::nrow(diversity_list[[1]])) {
+      if (base::isTRUE(base::nrow(n) != base::nrow(diversity_list[[1]]))) {
         base::stop("Mismatch in number of regions between neutrality and diversity statistics")
       }
       n$pi <- diversity_list[[1]][,3]
@@ -128,7 +128,7 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
         base::stop("slide_go@region.stats@haplotype.counts is an empty list")
       }
       # Security: Verify that haplotype counts have the same number of regions.
-      if (base::nrow(n) != base::length(h_list)) {
+      if (base::isTRUE(base::nrow(n) != base::length(h_list))) {
         base::stop("Mismatch in number of regions between statistics and haplotype counts")
       }
       # Use vapply for type safety. We index [[1]] to get the first population, ensuring
@@ -177,7 +177,7 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
       }
 
       # Security: Verify that neutrality and diversity stats have the same number of regions.
-      if (base::nrow(n) != base::nrow(diversity_list[[1]])) {
+      if (base::isTRUE(base::nrow(n) != base::nrow(diversity_list[[1]]))) {
         base::stop("Mismatch in number of regions between neutrality and diversity statistics")
       }
       n$pi <- diversity_list[[1]][,3]
@@ -187,7 +187,7 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
         base::stop("go@region.stats@haplotype.counts is an empty list")
       }
       # Security: Verify that haplotype counts have the same number of regions.
-      if (base::nrow(n) != base::length(h_list)) {
+      if (base::isTRUE(base::nrow(n) != base::length(h_list))) {
         base::stop("Mismatch in number of regions between statistics and haplotype counts")
       }
 

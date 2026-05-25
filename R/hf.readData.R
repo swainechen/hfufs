@@ -35,8 +35,8 @@ hf.readData <- function(fasta_file) {
   # Use utils::file_test("-f", ...) to ensure it is a regular file.
   # This is more robust than file.exists() as it excludes special files like FIFOs
   # that could cause the process to block, while remaining portable across platforms.
-  if (utils::file_test("-f", fasta_file)) {
-    if (!utils::file_test("-r", fasta_file)) {
+  if (base::isTRUE(utils::file_test("-f", fasta_file))) {
+    if (base::isTRUE(!utils::file_test("-r", fasta_file))) {
       base::stop(base::paste0("fasta_file ", base::shQuote(base::basename(fasta_file)), " is not readable"))
     }
 
@@ -58,7 +58,7 @@ hf.readData <- function(fasta_file) {
       hf.tempdir <- base::tempfile(tmpdir = hf.tempdir_root)
       iter <- iter + 1
     }
-    if (!base::dir.create(hf.tempdir, mode = "0700")) {
+    if (base::isTRUE(!base::dir.create(hf.tempdir, mode = "0700"))) {
       base::stop(base::paste0("Failed to create temporary directory for staging ", base::shQuote(base::basename(fasta_file))))
     }
     # Ensure temporary directory is cleaned up on exit to prevent resource leaks.
@@ -93,7 +93,7 @@ hf.readData <- function(fasta_file) {
             chunk <- base::readBin(con_in, "raw", n = chunk_size)
             if (base::length(chunk) == 0) break
             total_bytes <- total_bytes + base::length(chunk)
-            if (total_bytes > max_size) {
+            if (base::isTRUE(total_bytes > max_size)) {
               base::stop("Decompressed file exceeds 2GB limit (DoS protection)")
             }
             base::writeBin(chunk, con_out)
@@ -107,9 +107,9 @@ hf.readData <- function(fasta_file) {
     } else {
       hf.tempfile <- base::file.path(hf.tempdir, orig_basename)
       # Use file.symlink for performance with large genomic files, as per bioinformatics standards.
-      if (!base::file.symlink(fasta_file, hf.tempfile)) {
+      if (base::isTRUE(!base::file.symlink(fasta_file, hf.tempfile))) {
         # Fallback to file.copy if symlink fails (e.g., on some Windows configurations)
-        if (!base::file.copy(fasta_file, hf.tempfile, overwrite = TRUE)) {
+        if (base::isTRUE(!base::file.copy(fasta_file, hf.tempfile, overwrite = TRUE))) {
           base::stop(base::paste0("Failed to link or copy fasta file ", base::shQuote(base::basename(fasta_file)), " to temporary directory"))
         }
       }

@@ -58,7 +58,7 @@ hf.readData <- function(fasta_file) {
       hf.tempdir <- base::tempfile(tmpdir = hf.tempdir_root)
       iter <- iter + 1
     }
-    if (!base::dir.create(hf.tempdir, mode = "0700")) {
+    if (!base::isTRUE(base::dir.create(hf.tempdir, mode = "0700"))) {
       base::stop(base::paste0("Failed to create temporary directory for staging ", base::shQuote(base::basename(fasta_file))))
     }
     # Ensure temporary directory is cleaned up on exit to prevent resource leaks.
@@ -107,9 +107,9 @@ hf.readData <- function(fasta_file) {
     } else {
       hf.tempfile <- base::file.path(hf.tempdir, orig_basename)
       # Use file.symlink for performance with large genomic files, as per bioinformatics standards.
-      if (!base::file.symlink(fasta_file, hf.tempfile)) {
+      if (!base::isTRUE(base::file.symlink(fasta_file, hf.tempfile))) {
         # Fallback to file.copy if symlink fails (e.g., on some Windows configurations)
-        if (!base::file.copy(fasta_file, hf.tempfile, overwrite = TRUE)) {
+        if (!base::isTRUE(base::file.copy(fasta_file, hf.tempfile, overwrite = TRUE))) {
           base::stop(base::paste0("Failed to link or copy fasta file ", base::shQuote(base::basename(fasta_file)), " to temporary directory"))
         }
       }

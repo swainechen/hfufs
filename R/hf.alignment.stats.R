@@ -52,7 +52,7 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
   }
 
   # DoS Protection: Limit the number of regions to 1,000,000
-  if (base::length(go@n.sites) > 1000000) {
+  if (base::isTRUE(base::length(go@n.sites) > 1000000)) {
     base::stop("The GENOME object contains > 1,000,000 regions (DoS protection)")
   }
 
@@ -61,14 +61,14 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
     # PopGenome treats n.sites as a list when multiple regions are loaded.
     # We use unlist() before as.numeric() to safely handle list inputs and prevent coercion crashes.
     n_sites <- base::sum(base::as.numeric(base::unlist(go@n.sites)))
-    if (!base::is.finite(n_sites) || n_sites < 1) {
+    if (base::isTRUE(!base::is.finite(n_sites) || n_sites < 1)) {
       base::stop("The GENOME object contains no sites or invalid site counts")
     }
-    if (window > n_sites) {
+    if (base::isTRUE(window > n_sites)) {
       base::stop("The requested window size exceeds the total number of sites in the GENOME object")
     }
     num_windows <- base::ceiling((n_sites - window + 1) / step)
-    if (!base::is.finite(num_windows) || num_windows > 1000000 || num_windows < 1) {
+    if (base::isTRUE(!base::is.finite(num_windows) || num_windows > 1000000 || num_windows < 1)) {
       base::stop("The requested sliding window parameters would generate > 1,000,000 windows or an invalid number of windows (DoS protection)")
     }
   }
@@ -81,7 +81,7 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
     }
 
     # DoS Protection: Limit the number of populations to 1,000 to prevent resource exhaustion.
-    if (base::length(individuals_list) > 1000) {
+    if (base::isTRUE(base::length(individuals_list) > 1000)) {
       base::stop("The GENOME object contains > 1,000 populations (DoS protection)")
     }
 
@@ -124,7 +124,7 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
       n$pi <- diversity_list[[1]][,3]
 
       h_list <- slide_go@region.stats@haplotype.counts
-      if (base::length(h_list) == 0) {
+      if (base::isTRUE(base::length(h_list) == 0)) {
         base::stop("slide_go@region.stats@haplotype.counts is an empty list")
       }
       # Security: Verify that haplotype counts have the same number of regions.
@@ -183,7 +183,7 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
       n$pi <- diversity_list[[1]][,3]
 
       h_list <- go@region.stats@haplotype.counts
-      if (base::length(h_list) == 0) {
+      if (base::isTRUE(base::length(h_list) == 0)) {
         base::stop("go@region.stats@haplotype.counts is an empty list")
       }
       # Security: Verify that haplotype counts have the same number of regions.

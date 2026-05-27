@@ -99,7 +99,7 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
       if (base::length(neutrality_list) == 0) {
         base::stop("PopGenome::get.neutrality(slide_go) returned an empty list")
       }
-      n <- base::data.frame(neutrality_list[[1]])
+      n <- base::data.frame(neutrality_list[[1]], stringsAsFactors = FALSE)
 
       # Robustly extract start/end coordinates. We use vapply to ensure numeric return types
       # and prevent unpredictable simplification, providing better type safety.
@@ -163,7 +163,7 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
       if (base::length(neutrality_list) == 0) {
         base::stop("PopGenome::get.neutrality(go) returned an empty list")
       }
-      n <- base::data.frame(neutrality_list[[1]])
+      n <- base::data.frame(neutrality_list[[1]], stringsAsFactors = FALSE)
 
       n$numindividuals <- numindividuals
 

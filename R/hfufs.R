@@ -75,11 +75,11 @@ hfufs <- function(n, k, theta) {
         }
         S <- S / Sn
         if (base::isTRUE(!base::is.nan(S) && S > 0 && 1-S > 0)) {
-          return(base::log(1-S) - base::log(S))
+          return(base::log1p(-S) - base::log(S))
         }
       } else { 
         if (base::isTRUE(!base::is.nan(Sp) && Sp > 0 && 1-Sp > 0)) {
-          return(base::log(Sp) - base::log(1-Sp))
+          return(base::log(Sp) - base::log1p(-Sp))
         }
       }
     }
@@ -97,8 +97,8 @@ hfufs <- function(n, k, theta) {
     for (i in 1:(k-1)) {
       S <- S + base::exp(lstirling(n,i) + i * base::log(theta) - lSn)
     }
-    return(base::log(1-S) - base::log(S))
+    return(base::log1p(-S) - base::log(S))
   } else {
-    return(base::log(Sp) - base::log(1-Sp))
+    return(base::log(Sp) - base::log1p(-Sp))
   }
 }

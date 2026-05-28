@@ -51,10 +51,10 @@ hf.readData <- function(fasta_file) {
     # readData wants a clean directory with sequences
     # get a new subdir in case there are other temp files already.
     # We check the R version as tempdir(check = TRUE) was introduced in R 4.0.0.
-    hf.tempdir_root <- if (base::getRversion() >= "4.0.0") base::tempdir(check = TRUE) else base::tempdir()
+    hf.tempdir_root <- if (base::isTRUE(base::getRversion() >= "4.0.0")) base::tempdir(check = TRUE) else base::tempdir()
     hf.tempdir <- base::tempfile(tmpdir = hf.tempdir_root)
     iter <- 0
-    while ((base::file.exists(hf.tempdir) || base::dir.exists(hf.tempdir)) && iter < 100) {
+    while (base::isTRUE((base::file.exists(hf.tempdir) || base::dir.exists(hf.tempdir)) && iter < 100)) {
       hf.tempdir <- base::tempfile(tmpdir = hf.tempdir_root)
       iter <- iter + 1
     }

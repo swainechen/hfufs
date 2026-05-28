@@ -113,7 +113,7 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
         base::stop("PopGenome::get.diversity(slide_go) returned an empty list")
       }
       # Security: Validate diversity matrix dimensions before indexing to prevent out-of-bounds errors.
-      if (base::is.null(base::ncol(diversity_list[[1]])) || base::ncol(diversity_list[[1]]) < 3) {
+      if (base::isTRUE(base::is.null(base::ncol(diversity_list[[1]])) || base::ncol(diversity_list[[1]]) < 3)) {
         base::stop("PopGenome::get.diversity(slide_go) returned a matrix with insufficient columns (expected at least 3 for pi)")
       }
 
@@ -172,7 +172,7 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
         base::stop("PopGenome::get.diversity(go) returned an empty list")
       }
       # Security: Validate diversity matrix dimensions before indexing to prevent out-of-bounds errors.
-      if (base::is.null(base::ncol(diversity_list[[1]])) || base::ncol(diversity_list[[1]]) < 3) {
+      if (base::isTRUE(base::is.null(base::ncol(diversity_list[[1]])) || base::ncol(diversity_list[[1]]) < 3)) {
         base::stop("PopGenome::get.diversity(go) returned a matrix with insufficient columns (expected at least 3 for pi)")
       }
 

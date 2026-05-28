@@ -65,7 +65,7 @@ afufs <- function(n, k, theta) {
   chi <- function(t) { n*base::log(1+t) - k*base::log(t) }
   chiprimeprime <- function(t) { -n/(1+t)/(1+t) + k/t/t }
   z0 <- base::tryCatch (
-    { stats::uniroot(phiprime, c(0.1, n*k), tol=.Machine$double.eps, check.conv=TRUE)$root },
+    { stats::uniroot(phiprime, base::c(0.1, n*k), tol=.Machine$double.eps, check.conv=TRUE)$root },
     warning = function(w) { return(theta) },
     error = function(e) { return(theta) }
   )
@@ -84,7 +84,7 @@ afufs <- function(n, k, theta) {
           delta <- delta/10
           iter <- iter + 1
         }
-        stats::uniroot(revchi, c(delta, t0), tol=.Machine$double.eps, check.conv=TRUE)$root
+        stats::uniroot(revchi, base::c(delta, t0), tol=.Machine$double.eps, check.conv=TRUE)$root
       } else {
         # otherwise make sure the range is big enough on the right
         tempfactor <- 10
@@ -93,7 +93,7 @@ afufs <- function(n, k, theta) {
           tempfactor <- tempfactor*10
           iter <- iter + 1
         }
-        stats::uniroot(revchi, c(t0, tempfactor*t0), tol=.Machine$double.eps, check.conv=TRUE)$root
+        stats::uniroot(revchi, base::c(t0, tempfactor*t0), tol=.Machine$double.eps, check.conv=TRUE)$root
       }
     },
     warning = function(w) { return(NULL) },

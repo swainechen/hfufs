@@ -69,3 +69,8 @@ SENTINEL'S JOURNAL - CRITICAL LEARNINGS ONLY
 **Vulnerability:** Silent data corruption or out-of-bounds errors when merging statistics from multiple external function calls (e.g., neutrality vs diversity vs haplotype counts).
 **Learning:** External libraries like `PopGenome` may return results for different numbers of regions if certain filters or transformations apply differently across statistics. Merging these into a single data frame without explicit row-count validation can lead to misaligned data, where biological stats are attributed to the wrong genomic regions.
 **Prevention:** Always implement explicit checks comparing the number of rows (regions) across all parallel data structures before column assignment. Use `base::isTRUE(base::nrow(df1) != base::nrow(df2))` or similar validation to catch misalignments early and fail securely with a descriptive error message.
+
+## 2026-04-19 - Numerical Precision and Constant Masking in Statistical R Packages
+**Vulnerability:** Loss of numerical precision in logit transformations and potential hijacking of global constants.
+**Learning:** Standard R functions like `log(1+x)` or `log(1-x)` can suffer from significant precision loss when `x` is very small, which is common in genomic statistics. Additionally, global constants like `.Machine` are not reserved words and can be redefined by users, leading to unpredictable behavior or security risks if they control critical parameters like numerical tolerances.
+**Prevention:** Use `base::log1p(x)` for `log(1+x)` and `base::log1p(-x)` for `log(1-x)` to maintain numerical stability. Always prefix global constants with their namespace (e.g., `base::.Machine`) to ensure the intended system values are used and prevent variable masking vulnerabilities.

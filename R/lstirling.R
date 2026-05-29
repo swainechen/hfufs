@@ -52,7 +52,7 @@ lstirling <- function(n, m) {
     m <- m - 1
     x0_res <- base::tryCatch(
       {
-        stats::uniroot(phiprime, base::c(0.1, n * m), tol = .Machine$double.eps, check.conv = TRUE)$root
+        stats::uniroot(phiprime, base::c(0.1, n * m), tol = base::.Machine$double.eps, check.conv = TRUE)$root
       },
       warning = function(w) {
         return(NULL)
@@ -69,7 +69,7 @@ lstirling <- function(n, m) {
     }
     x0 <- x0_res
     t0 <- m / (n - m)
-    B <- base::lgamma(x0 + n + 1) - base::lgamma(x0 + 1) - m * base::log(x0) - n * base::log(t0 + 1) + m * base::log(t0)
+    B <- base::lgamma(x0 + n + 1) - base::lgamma(x0 + 1) - m * base::log(x0) - n * base::log1p(t0) + m * base::log(t0)
     gt <- 1 / x0 * base::sqrt(m * (n - m) / n / (base::trigamma(x0 + n + 1) - base::trigamma(x0 + 1) + m / x0 / x0))
     return(B + base::log(gt) + base::lchoose(n, m))
   }

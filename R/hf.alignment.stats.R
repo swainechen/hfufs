@@ -9,6 +9,7 @@
 #'   diversity.stats
 #'   neutrality.stats
 #'
+#' @usage hf.alignment.stats(go, slide = FALSE, window = 1000, step = 500)
 #' @export
 #'
 #' @examples

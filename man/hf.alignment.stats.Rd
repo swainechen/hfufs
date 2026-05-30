@@ -4,7 +4,7 @@
 \alias{hf.alignment.stats}
 \title{Calculate population genetics statistics from a PopGenome GENOME object}
 \usage{
-hf.alignment.stats(go, slide = F, window = 1000, step = 500)
+hf.alignment.stats(go, slide = FALSE, window = 1000, step = 500)
 }
 \description{
 Takes in a PopGenome GENOME object (from PopGenome::readData) and

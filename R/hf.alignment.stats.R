@@ -31,12 +31,7 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
   }
 
   # Check if go is a GENOME object safely
-  is_genome <- base::tryCatch({
-    summ <- base::summary(go)
-    base::is.character(summ) && base::length(summ) >= 2 && base::isTRUE(summ[2] == "GENOME")
-  }, error = function(e) FALSE)
-
-  if (!is_genome) {
+  if (base::isTRUE(!base::inherits(go, "GENOME"))) {
     base::stop("go must be a PopGenome GENOME object")
   }
 
@@ -91,6 +86,11 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
       base::stop("The GENOME object contains no individuals in the first population")
     }
 
+    # DoS Protection: Limit the number of individuals to 1,000,000 to prevent resource exhaustion.
+    if (base::isTRUE(numindividuals > 1000000)) {
+      base::stop("The GENOME object contains > 1,000,000 individuals in the first population (DoS protection)")
+    }
+
     if (base::isTRUE(slide)) {
       slide_go <- PopGenome::sliding.window.transform(go, width=window, jump=step, type=2, whole.data=TRUE)
       slide_go <- PopGenome::diversity.stats(slide_go, pi=TRUE)
@@ -104,9 +104,16 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
 
       # Robustly extract start/end coordinates. We use vapply to ensure numeric return types
       # and prevent unpredictable simplification, providing better type safety.
+      # We check the length of splits to prevent out-of-bounds access.
       region_splits <- base::strsplit(base::sub(" :$", "", slide_go@region.names), split=" - ")
-      n$x.start <- base::vapply(region_splits, function(x) base::as.numeric(x[1]), FUN.VALUE = 0.0)
-      n$x.end <- base::vapply(region_splits, function(x) base::as.numeric(x[2]), FUN.VALUE = 0.0)
+      n$x.start <- base::vapply(region_splits, function(x) {
+        if (base::length(x) < 1) return(base::as.numeric(NA))
+        base::as.numeric(x[1])
+      }, FUN.VALUE = 0.0)
+      n$x.end <- base::vapply(region_splits, function(x) {
+        if (base::length(x) < 2) return(base::as.numeric(NA))
+        base::as.numeric(x[2])
+      }, FUN.VALUE = 0.0)
       n$numindividuals <- numindividuals
 
       diversity_list <- PopGenome::get.diversity(slide_go)

@@ -77,18 +77,25 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
     }
 
     # DoS Protection: Limit the number of populations to 1,000 to prevent resource exhaustion.
-    if (base::isTRUE(base::length(individuals_list) > 1000)) {
+    num_populations <- base::length(individuals_list)
+    if (base::isTRUE(num_populations > 1000)) {
       base::stop("The GENOME object contains > 1,000 populations (DoS protection)")
     }
 
-    numindividuals <- base::length(individuals_list[[1]])
-    if (numindividuals == 0) {
-      base::stop("The GENOME object contains no individuals in the first population")
-    }
-
-    # DoS Protection: Limit the number of individuals to 1,000,000 to prevent resource exhaustion.
-    if (base::isTRUE(numindividuals > 1000000)) {
-      base::stop("The GENOME object contains > 1,000,000 individuals in the first population (DoS protection)")
+    # DoS Protection: Validate all populations to ensure none are empty or excessively large,
+    # preventing resource exhaustion from hidden large populations.
+    numindividuals <- 0
+    for (i in 1:num_populations) {
+      pop_size <- base::length(individuals_list[[i]])
+      if (pop_size == 0) {
+        base::stop(base::paste("Population", i, "in the GENOME object contains no individuals"))
+      }
+      if (base::isTRUE(pop_size > 1000000)) {
+        base::stop(base::paste("Population", i, "in the GENOME object contains > 1,000,000 individuals (DoS protection)"))
+      }
+      if (i == 1) {
+        numindividuals <- pop_size
+      }
     }
 
     if (base::isTRUE(slide)) {

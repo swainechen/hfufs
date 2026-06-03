@@ -74,3 +74,8 @@ SENTINEL'S JOURNAL - CRITICAL LEARNINGS ONLY
 **Vulnerability:** Loss of numerical precision in logit transformations and potential hijacking of global constants.
 **Learning:** Standard R functions like `log(1+x)` or `log(1-x)` can suffer from significant precision loss when `x` is very small, which is common in genomic statistics. Additionally, global constants like `.Machine` are not reserved words and can be redefined by users, leading to unpredictable behavior or security risks if they control critical parameters like numerical tolerances.
 **Prevention:** Use `base::log1p(x)` for `log(1+x)` and `base::log1p(-x)` for `log(1-x)` to maintain numerical stability. Always prefix global constants with their namespace (e.g., `base::.Machine`) to ensure the intended system values are used and prevent variable masking vulnerabilities.
+
+## 2026-04-20 - Denial of Service (DoS) via Incomplete Validation of Nested Data Structures
+**Vulnerability:** Resource exhaustion when processing complex objects where only the top-level or first element of a nested structure is validated for size/complexity.
+**Learning:** In bioinformatics packages like `PopGenome`, data is often organized in multi-layered structures (e.g., populations containing individuals). Validating only the first population for size limits allows "hidden" large populations in subsequent indices to bypass DoS protections and exhaust memory during analysis.
+**Prevention:** When enforcing resource limits on complex data structures, use iteration to validate all elements of nested lists or arrays. Ensure that these validation loops are themselves protected by top-level count limits (e.g., maximum number of populations) to maintain overall system stability.

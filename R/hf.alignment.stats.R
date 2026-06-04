@@ -81,17 +81,18 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
       base::stop("The GENOME object contains > 1,000 populations (DoS protection)")
     }
 
+    pop_sizes <- base::numeric(base::length(individuals_list))
     for (i in base::seq_along(individuals_list)) {
-      num_ind <- base::length(individuals_list[[i]])
-      if (base::isTRUE(num_ind == 0)) {
-        base::stop(base::paste0("Population ", i, " in the GENOME object contains no individuals"))
+      pop_sizes[i] <- base::length(individuals_list[[i]])
+      if (pop_sizes[i] == 0) {
+        base::stop(base::paste0("The GENOME object contains no individuals in population ", i))
       }
-
-      # DoS Protection: Limit the number of individuals to 1,000,000 to prevent resource exhaustion.
-      if (base::isTRUE(num_ind > 1000000)) {
-        base::stop(base::paste0("Population ", i, " in the GENOME object contains > 1,000,000 individuals (DoS protection)"))
+      # DoS Protection: Limit the number of individuals to 1,000,000 per population.
+      if (base::isTRUE(pop_sizes[i] > 1000000)) {
+        base::stop(base::paste0("The GENOME object contains > 1,000,000 individuals in population ", i, " (DoS protection)"))
       }
     }
+    numindividuals <- pop_sizes[1]
 
     numindividuals <- num_ind
 

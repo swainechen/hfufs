@@ -28,7 +28,7 @@ hf.readData <- function(fasta_file) {
     base::stop("The 'PopGenome' package is required but not installed.")
   }
 
-  if (!base::is.character(fasta_file) || base::length(fasta_file) != 1 || base::is.na(fasta_file)) {
+  if (base::isTRUE(!base::is.character(fasta_file) || base::length(fasta_file) != 1 || base::is.na(fasta_file))) {
     base::stop("fasta_file must be a single character string and not NA")
   }
 
@@ -69,14 +69,14 @@ hf.readData <- function(fasta_file) {
     # Preserve the original filename to maintain sample identifiers in PopGenome.
     # basename() is used to prevent path traversal when constructing the temporary path.
     orig_basename <- base::basename(fasta_file)
-    if (orig_basename == "" || orig_basename == "." || orig_basename == "..") {
+    if (base::isTRUE(orig_basename == "" || orig_basename == "." || orig_basename == "..")) {
       orig_basename <- "input.fasta"
     }
 
-    if (base::grepl("\\.gz$", fasta_file, ignore.case = TRUE)) {
+    if (base::isTRUE(base::grepl("\\.gz$", fasta_file, ignore.case = TRUE))) {
       # Decompress while stripping .gz extension
       decompressed_basename <- base::sub("\\.gz$", "", orig_basename, ignore.case = TRUE)
-      if (decompressed_basename == "" || decompressed_basename == "." || decompressed_basename == "..") {
+      if (base::isTRUE(decompressed_basename == "" || decompressed_basename == "." || decompressed_basename == "..")) {
         decompressed_basename <- "input.fasta"
       }
       hf.tempfile <- base::file.path(hf.tempdir, decompressed_basename)
@@ -91,7 +91,7 @@ hf.readData <- function(fasta_file) {
           chunk_size <- 10 * 1024 * 1024 # 10MB chunks
           while (TRUE) {
             chunk <- base::readBin(con_in, "raw", n = chunk_size)
-            if (base::length(chunk) == 0) break
+            if (base::isTRUE(base::length(chunk) == 0)) break
             total_bytes <- total_bytes + base::length(chunk)
             if (base::isTRUE(total_bytes > max_size)) {
               base::stop("Decompressed file exceeds 2GB limit (DoS protection)")

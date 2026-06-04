@@ -26,7 +26,7 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
   }
 
   # Input validation
-  if (base::missing(go)) {
+  if (base::isTRUE(base::missing(go))) {
     base::stop("go must be provided")
   }
 
@@ -35,15 +35,15 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
     base::stop("go must be a PopGenome GENOME object")
   }
 
-  if (!base::is.logical(slide) || base::length(slide) != 1 || base::is.na(slide)) {
+  if (base::isTRUE(!base::is.logical(slide) || base::length(slide) != 1 || base::is.na(slide))) {
     base::stop("slide must be a single non-NA logical value")
   }
 
-  if (!base::is.numeric(window) || base::length(window) != 1 || !base::is.finite(window) || window < 1 || window > 2000000000 || window %% 1 != 0) {
+  if (base::isTRUE(!base::is.numeric(window) || base::length(window) != 1 || !base::is.finite(window) || window < 1 || window > 2000000000 || window %% 1 != 0)) {
     base::stop("window must be a single finite numeric whole number between 1 and 2,000,000,000")
   }
 
-  if (!base::is.numeric(step) || base::length(step) != 1 || !base::is.finite(step) || step < 1 || step > 2000000000 || step %% 1 != 0) {
+  if (base::isTRUE(!base::is.numeric(step) || base::length(step) != 1 || !base::is.finite(step) || step < 1 || step > 2000000000 || step %% 1 != 0)) {
     base::stop("step must be a single finite numeric whole number between 1 and 2,000,000,000")
   }
 
@@ -70,9 +70,9 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
   }
 
   # takes in a GENOME object as from PopGenome readData
-  if (TRUE) {
+  if (base::isTRUE(base::inherits(go, "GENOME"))) {
     individuals_list <- PopGenome::get.individuals(go)
-    if (base::length(individuals_list) == 0) {
+    if (base::isTRUE(base::length(individuals_list) == 0)) {
       base::stop("No individuals found in the GENOME object")
     }
 
@@ -81,15 +81,19 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
       base::stop("The GENOME object contains > 1,000 populations (DoS protection)")
     }
 
-    numindividuals <- base::length(individuals_list[[1]])
-    if (numindividuals == 0) {
-      base::stop("The GENOME object contains no individuals in the first population")
+    for (i in base::seq_along(individuals_list)) {
+      num_ind <- base::length(individuals_list[[i]])
+      if (base::isTRUE(num_ind == 0)) {
+        base::stop(base::paste0("Population ", i, " in the GENOME object contains no individuals"))
+      }
+
+      # DoS Protection: Limit the number of individuals to 1,000,000 to prevent resource exhaustion.
+      if (base::isTRUE(num_ind > 1000000)) {
+        base::stop(base::paste0("Population ", i, " in the GENOME object contains > 1,000,000 individuals (DoS protection)"))
+      }
     }
 
-    # DoS Protection: Limit the number of individuals to 1,000,000 to prevent resource exhaustion.
-    if (base::isTRUE(numindividuals > 1000000)) {
-      base::stop("The GENOME object contains > 1,000,000 individuals in the first population (DoS protection)")
-    }
+    numindividuals <- num_ind
 
     if (base::isTRUE(slide)) {
       slide_go <- PopGenome::sliding.window.transform(go, width=window, jump=step, type=2, whole.data=TRUE)
@@ -97,7 +101,7 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
       slide_go <- PopGenome::neutrality.stats(slide_go, detail=TRUE, do.R2=TRUE)
 
       neutrality_list <- PopGenome::get.neutrality(slide_go)
-      if (base::length(neutrality_list) == 0) {
+      if (base::isTRUE(base::length(neutrality_list) == 0)) {
         base::stop("PopGenome::get.neutrality(slide_go) returned an empty list")
       }
       n <- base::data.frame(neutrality_list[[1]], stringsAsFactors = FALSE)
@@ -117,7 +121,7 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
       n$numindividuals <- numindividuals
 
       diversity_list <- PopGenome::get.diversity(slide_go)
-      if (base::length(diversity_list) == 0) {
+      if (base::isTRUE(base::length(diversity_list) == 0)) {
         base::stop("PopGenome::get.diversity(slide_go) returned an empty list")
       }
       # Security: Validate diversity matrix dimensions before indexing to prevent out-of-bounds errors.
@@ -172,7 +176,7 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
       go <- PopGenome::neutrality.stats(go, detail=TRUE, do.R2=TRUE)
 
       neutrality_list <- PopGenome::get.neutrality(go)
-      if (base::length(neutrality_list) == 0) {
+      if (base::isTRUE(base::length(neutrality_list) == 0)) {
         base::stop("PopGenome::get.neutrality(go) returned an empty list")
       }
       n <- base::data.frame(neutrality_list[[1]], stringsAsFactors = FALSE)
@@ -180,7 +184,7 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
       n$numindividuals <- numindividuals
 
       diversity_list <- PopGenome::get.diversity(go)
-      if (base::length(diversity_list) == 0) {
+      if (base::isTRUE(base::length(diversity_list) == 0)) {
         base::stop("PopGenome::get.diversity(go) returned an empty list")
       }
       # Security: Validate diversity matrix dimensions before indexing to prevent out-of-bounds errors.

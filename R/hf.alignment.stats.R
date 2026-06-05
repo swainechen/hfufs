@@ -123,11 +123,11 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
       region_splits <- base::strsplit(base::sub(" :$", "", slide_go@region.names), split=" - ")
       n$x.start <- base::vapply(region_splits, function(x) {
         if (base::length(x) < 1) return(base::as.numeric(NA))
-        base::as.numeric(x[1])
+        base::as.numeric(x[[1]])
       }, FUN.VALUE = 0.0)
       n$x.end <- base::vapply(region_splits, function(x) {
         if (base::length(x) < 2) return(base::as.numeric(NA))
-        base::as.numeric(x[2])
+        base::as.numeric(x[[2]])
       }, FUN.VALUE = 0.0)
       n$numindividuals <- numindividuals
 

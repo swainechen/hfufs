@@ -83,6 +83,8 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
     }
 
     pop_sizes <- base::numeric(base::length(individuals_list))
+    # Security: Iteratively validate all populations to prevent hidden large populations
+    # from bypassing resource limits and causing a Denial of Service (DoS).
     for (i in base::seq_along(individuals_list)) {
       pop_sizes[i] <- base::length(individuals_list[[i]])
       if (pop_sizes[i] == 0) {
@@ -93,9 +95,16 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
         base::stop(base::paste0("The GENOME object contains > 1,000,000 individuals in population ", i, " (DoS protection)"))
       }
     }
-    numindividuals <- pop_sizes[1]
 
-    numindividuals <- num_ind
+    # DoS Protection: Enforce a cumulative limit of 10,000,000 individuals across all
+    # populations to prevent overall memory exhaustion.
+    if (base::isTRUE(base::sum(pop_sizes) > 10000000)) {
+      base::stop("The GENOME object contains > 10,000,000 total individuals (DoS protection)")
+    }
+
+    # Security: Correctly assign from internal state and ensure we do not use undefined
+    # external variables (e.g., 'num_ind') which could lead to application crashes.
+    numindividuals <- pop_sizes[1]
 
     if (base::isTRUE(slide)) {
       slide_go <- PopGenome::sliding.window.transform(go, width=window, jump=step, type=2, whole.data=TRUE)

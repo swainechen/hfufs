@@ -60,45 +60,55 @@ hfufs <- function(n, k, theta) {
   }
   # if n is small enough, then just calculate directly
   if (base::isTRUE(n <= 30)) {
-    s_n <- stirmat(n,n)
+    s_n <- stirmat(n, n)
     Sn <- base::exp(base::lgamma(theta + n) - base::lgamma(theta))
-    if(base::isTRUE(!base::is.infinite(Sn))) {
-      Sp <- 0
-      for (i in k:n) {	# this is k:n for Fu's Fs, 1:k for Strobeck's S
-        Sp <- Sp + base::abs(s_n[n,i]) * theta**i
-      }
-      Sp <- Sp / Sn
-      if (base::isTRUE((1 - Sp) < too_small)) {
-        S <- 0
-        for (i in 1:(k-1)) {
-          S <- S + base::abs(s_n[n,i]) * theta**i
-        }
-        S <- S / Sn
-        if (base::isTRUE(!base::is.nan(S) && S > 0 && 1-S > 0)) {
+    if (base::isTRUE(!base::is.infinite(Sn))) {
+      # Choose the shorter range to minimize iterations (DoS protection).
+      if (base::isTRUE(k < (n / 2) + 1)) {
+        indices <- 1:(k - 1)
+        vals <- base::vapply(indices, function(i) {
+          base::abs(s_n[n, i]) * theta**i
+        }, FUN.VALUE = 0.0)
+        S <- base::sum(base::sort(vals)) / Sn
+        if (base::isTRUE(!base::is.nan(S) && S > 0 && S < 1)) {
           return(base::log1p(-S) - base::log(S))
         }
-      } else { 
-        if (base::isTRUE(!base::is.nan(Sp) && Sp > 0 && 1-Sp > 0)) {
+      } else {
+        indices <- k:n
+        vals <- base::vapply(indices, function(i) {
+          base::abs(s_n[n, i]) * theta**i
+        }, FUN.VALUE = 0.0)
+        Sp <- base::sum(base::sort(vals)) / Sn
+        if (base::isTRUE(!base::is.nan(Sp) && Sp > 0 && Sp < 1)) {
           return(base::log(Sp) - base::log1p(-Sp))
         }
       }
     }
   }
+
   # use log approximations to calculate Fu's Fs
-  # this is a fallback in case previous calculation hit infinity
+  # this is a fallback in case previous calculation hit infinity or for larger n
   # We use lgamma to avoid large vector allocation for 0:(n-1)
   lSn <- base::lgamma(theta + n) - base::lgamma(theta)
-  Sp <- 0
-  for (i in k:n) {
-    Sp <- Sp + base::exp(lstirling(n, i) + i * base::log(theta) - lSn)
-  }
-  if (base::isTRUE((1 - Sp) < too_small)) {
-    S <- 0
-    for (i in 1:(k-1)) {
-      S <- S + base::exp(lstirling(n,i) + i * base::log(theta) - lSn)
-    }
+
+  # Choose the shorter range to minimize iterations and calls to lstirling (DoS protection).
+  # The total sum from 1 to n is 1.
+  if (base::isTRUE(k < (n / 2) + 1)) {
+    # Range 1:(k-1) is shorter or equal to k:n
+    indices <- 1:(k - 1)
+    vals <- base::vapply(indices, function(i) {
+      base::exp(lstirling(n, i) + i * base::log(theta) - lSn)
+    }, FUN.VALUE = 0.0)
+    S <- base::sum(base::sort(vals))
+    # logit(Sp) = log(Sp) - log(1-Sp) = log(1-S) - log(S)
     return(base::log1p(-S) - base::log(S))
   } else {
+    # Range k:n is shorter
+    indices <- k:n
+    vals <- base::vapply(indices, function(i) {
+      base::exp(lstirling(n, i) + i * base::log(theta) - lSn)
+    }, FUN.VALUE = 0.0)
+    Sp <- base::sum(base::sort(vals))
     return(base::log(Sp) - base::log1p(-Sp))
   }
 }

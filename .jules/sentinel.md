@@ -79,3 +79,8 @@ SENTINEL'S JOURNAL - CRITICAL LEARNINGS ONLY
 **Vulnerability:** Resource exhaustion when processing complex objects where only the top-level or first element of a nested structure is validated for size/complexity.
 **Learning:** In bioinformatics packages like `PopGenome`, data is often organized in multi-layered structures (e.g., populations containing individuals). Validating only the first population for size limits allows "hidden" large populations in subsequent indices to bypass DoS protections and exhaust memory during analysis.
 **Prevention:** When enforcing resource limits on complex data structures, use iteration to validate all elements of nested lists or arrays. Ensure that these validation loops are themselves protected by top-level count limits (e.g., maximum number of populations) to maintain overall system stability.
+
+## 2026-04-21 - Denial of Service (DoS) via Symmetric Summation in Distribution Tails
+**Vulnerability:** Resource exhaustion (DoS) when calculating statistics derived from distributions (like Fu's Fs or Strobeck's S) where the number of terms to sum can reach 1,000,000.
+**Learning:** Even when each term is relatively fast to compute, 1,000,000 calls to a complex function like `lstirling` (which involves root-finding) can lead to significant processing delays. Since the total probability sum is 1, calculating the "complementary" tail when it's shorter reduces the worst-case computation by 50%.
+**Prevention:** Implement "short-tail" summation logic by choosing the shorter of the two ranges (1...k vs k+1...n) and using the relation P(X <= k) = 1 - P(X > k). Combine this with `base::sort()` on values before summation to maintain numerical precision.

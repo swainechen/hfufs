@@ -65,33 +65,48 @@ hstrobecks <- function(n, k, theta) {
   }
   # if n is small enough, then just calculate directly
   if (base::isTRUE(n <= 30)) {
-    s_n <- stirmat(n,n)
+    s_n <- stirmat(n, n)
     Sn <- base::exp(base::lgamma(theta + n) - base::lgamma(theta))
-    if(base::isTRUE(!base::is.infinite(Sn))) {
-      Ss <- 0
-      for (i in 1:k) {	# this is 1:k for Strobeck's S, k:n for Fu's Fs
-        Ss <- Ss + base::abs(s_n[n,i]) * theta**i
+    if (base::isTRUE(!base::is.infinite(Sn))) {
+      # Choose the shorter range to minimize iterations (DoS protection).
+      if (base::isTRUE(k < (n / 2) + 1)) {
+        indices <- 1:k
+        vals <- base::vapply(indices, function(i) {
+          base::abs(s_n[n, i]) * theta**i
+        }, FUN.VALUE = 0.0)
+        Ss <- base::sum(base::sort(vals)) / Sn
+      } else {
+        indices <- (k + 1):n
+        vals <- base::vapply(indices, function(i) {
+          base::abs(s_n[n, i]) * theta**i
+        }, FUN.VALUE = 0.0)
+        Ss <- 1 - (base::sum(base::sort(vals)) / Sn)
       }
-      Ss <- Ss / Sn
       if (base::isTRUE(!base::is.nan(Ss) && !base::is.infinite(Ss))) {
         return(Ss)
       }
     }
   }
+
   # use log approximations to calculate Strobeck's S
-  # this is a fallback in case previous calculation overflows
-  # make sure to add values in ascending order for accuracy
-  # i.e. explicitly don't just use sum(vals)
+  # this is a fallback in case previous calculation overflows or for larger n
   # We use lgamma to avoid large vector allocation for 0:(n-1)
   lSn <- base::lgamma(theta + n) - base::lgamma(theta)
-  vals <- base::rep(0, k)
-  for (i in 1:k) {
-    vals[i] <- base::exp(lstirling(n,i) + i * base::log(theta) - lSn)
+
+  # Choose the shorter range to minimize iterations and calls to lstirling (DoS protection).
+  if (base::isTRUE(k < (n / 2) + 1)) {
+    indices <- 1:k
+    vals <- base::vapply(indices, function(i) {
+      base::exp(lstirling(n, i) + i * base::log(theta) - lSn)
+    }, FUN.VALUE = 0.0)
+    Ss <- base::sum(base::sort(vals))
+  } else {
+    indices <- (k + 1):n
+    vals <- base::vapply(indices, function(i) {
+      base::exp(lstirling(n, i) + i * base::log(theta) - lSn)
+    }, FUN.VALUE = 0.0)
+    Ss <- 1 - base::sum(base::sort(vals))
   }
-  vals <- base::sort(vals)
-  Ss <- 0
-  for (i in 1:k) {
-    Ss <- Ss + vals[i]
-  }
+
   return(Ss)
 }

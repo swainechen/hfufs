@@ -52,14 +52,20 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
     base::stop("The GENOME object contains > 1,000,000 regions (DoS protection)")
   }
 
+  # PopGenome treats n.sites as a list when multiple regions are loaded.
+  # We use unlist() before as.numeric() to safely handle list inputs and prevent coercion crashes.
+  n_sites <- base::sum(base::as.numeric(base::unlist(go@n.sites)))
+  if (base::isTRUE(!base::is.finite(n_sites) || n_sites < 1)) {
+    base::stop("The GENOME object contains no sites or invalid site counts")
+  }
+
+  # DoS Protection: Limit the total number of sites to 2,000,000,000.
+  if (base::isTRUE(n_sites > 2000000000)) {
+    base::stop("The GENOME object contains > 2,000,000,000 total sites (DoS protection)")
+  }
+
   # DoS Protection: Limit the number of sliding windows to 1,000,000
   if (base::isTRUE(slide)) {
-    # PopGenome treats n.sites as a list when multiple regions are loaded.
-    # We use unlist() before as.numeric() to safely handle list inputs and prevent coercion crashes.
-    n_sites <- base::sum(base::as.numeric(base::unlist(go@n.sites)))
-    if (base::isTRUE(!base::is.finite(n_sites) || n_sites < 1)) {
-      base::stop("The GENOME object contains no sites or invalid site counts")
-    }
     if (base::isTRUE(window > n_sites)) {
       base::stop("The requested window size exceeds the total number of sites in the GENOME object")
     }

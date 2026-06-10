@@ -93,7 +93,7 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
     # from bypassing resource limits and causing a Denial of Service (DoS).
     for (i in base::seq_along(individuals_list)) {
       pop_sizes[i] <- base::length(individuals_list[[i]])
-      if (pop_sizes[i] == 0) {
+      if (base::isTRUE(pop_sizes[i] == 0)) {
         base::stop(base::paste0("The GENOME object contains no individuals in population ", i))
       }
       # DoS Protection: Limit the number of individuals to 1,000,000 per population.
@@ -128,11 +128,11 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
       # We check the length of splits to prevent out-of-bounds access.
       region_splits <- base::strsplit(base::sub(" :$", "", slide_go@region.names), split=" - ")
       n$x.start <- base::vapply(region_splits, function(x) {
-        if (base::length(x) < 1) return(base::as.numeric(NA))
+        if (base::isTRUE(base::length(x) < 1)) return(base::as.numeric(NA))
         base::as.numeric(x[[1]])
       }, FUN.VALUE = 0.0)
       n$x.end <- base::vapply(region_splits, function(x) {
-        if (base::length(x) < 2) return(base::as.numeric(NA))
+        if (base::isTRUE(base::length(x) < 2)) return(base::as.numeric(NA))
         base::as.numeric(x[[2]])
       }, FUN.VALUE = 0.0)
       n$numindividuals <- numindividuals
@@ -164,22 +164,22 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
       # consistency with neutrality and diversity stats. We handle both vector and matrix
       # return structures from PopGenome.
       n$n.sequences <- base::vapply(h_list, function(reg) {
-        if (base::is.null(reg) || base::length(reg) < 1 || base::is.null(reg[[1]])) return(0.0)
+        if (base::isTRUE(base::is.null(reg) || base::length(reg) < 1 || base::is.null(reg[[1]]))) return(0.0)
         base::sum(reg[[1]])
       }, FUN.VALUE = 0.0)
       n$n.haplotypes <- base::vapply(h_list, function(reg) {
-        if (base::is.null(reg) || base::length(reg) < 1 || base::is.null(reg[[1]])) return(0.0)
+        if (base::isTRUE(base::is.null(reg) || base::length(reg) < 1 || base::is.null(reg[[1]]))) return(0.0)
         x <- reg[[1]]
         nc <- base::ncol(x)
-        if (base::is.null(nc)) return(base::as.numeric(base::length(base::which(x > 0))))
+        if (base::isTRUE(base::is.null(nc))) return(base::as.numeric(base::length(base::which(x > 0))))
         return(base::as.numeric(nc))
       }, FUN.VALUE = 0.0)
       n$n.singleton.haplotypes <- base::vapply(h_list, function(reg) {
-        if (base::is.null(reg) || base::length(reg) < 1 || base::is.null(reg[[1]])) return(0.0)
+        if (base::isTRUE(base::is.null(reg) || base::length(reg) < 1 || base::is.null(reg[[1]]))) return(0.0)
         base::as.numeric(base::length(base::which(reg[[1]] == 1)))
       }, FUN.VALUE = 0.0)
       n$n.consensus.haplotypes <- base::vapply(h_list, function(reg) {
-        if (base::is.null(reg) || base::length(reg) < 1 || base::is.null(reg[[1]]) || base::length(reg[[1]]) == 0) return(0.0)
+        if (base::isTRUE(base::is.null(reg) || base::length(reg) < 1 || base::is.null(reg[[1]]) || base::length(reg[[1]]) == 0)) return(0.0)
         base::as.numeric(base::max(reg[[1]]))
       }, FUN.VALUE = 0.0)
       for(i in base::which(base::is.na(n$Fu.F_S))) {
@@ -228,22 +228,22 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
       # consistency with neutrality and diversity stats. We handle both vector and matrix
       # return structures from PopGenome.
       n$n.sequences <- base::vapply(h_list, function(reg) {
-        if (base::is.null(reg) || base::length(reg) < 1 || base::is.null(reg[[1]])) return(0.0)
+        if (base::isTRUE(base::is.null(reg) || base::length(reg) < 1 || base::is.null(reg[[1]]))) return(0.0)
         base::sum(reg[[1]])
       }, FUN.VALUE = 0.0)
       n$n.haplotypes <- base::vapply(h_list, function(reg) {
-        if (base::is.null(reg) || base::length(reg) < 1 || base::is.null(reg[[1]])) return(0.0)
+        if (base::isTRUE(base::is.null(reg) || base::length(reg) < 1 || base::is.null(reg[[1]]))) return(0.0)
         x <- reg[[1]]
         nc <- base::ncol(x)
-        if (base::is.null(nc)) return(base::as.numeric(base::length(base::which(x > 0))))
+        if (base::isTRUE(base::is.null(nc))) return(base::as.numeric(base::length(base::which(x > 0))))
         return(base::as.numeric(nc))
       }, FUN.VALUE = 0.0)
       n$n.singleton.haplotypes <- base::vapply(h_list, function(reg) {
-        if (base::is.null(reg) || base::length(reg) < 1 || base::is.null(reg[[1]])) return(0.0)
+        if (base::isTRUE(base::is.null(reg) || base::length(reg) < 1 || base::is.null(reg[[1]]))) return(0.0)
         base::as.numeric(base::length(base::which(reg[[1]] == 1)))
       }, FUN.VALUE = 0.0)
       n$n.consensus.haplotypes <- base::vapply(h_list, function(reg) {
-        if (base::is.null(reg) || base::length(reg) < 1 || base::is.null(reg[[1]]) || base::length(reg[[1]]) == 0) return(0.0)
+        if (base::isTRUE(base::is.null(reg) || base::length(reg) < 1 || base::is.null(reg[[1]]) || base::length(reg[[1]]) == 0)) return(0.0)
         base::as.numeric(base::max(reg[[1]]))
       }, FUN.VALUE = 0.0)
       for(i in base::which(base::is.na(n$Fu.F_S))) {

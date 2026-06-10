@@ -84,3 +84,8 @@ SENTINEL'S JOURNAL - CRITICAL LEARNINGS ONLY
 **Vulnerability:** Resource exhaustion (DoS) when calculating statistics derived from distributions (like Fu's Fs or Strobeck's S) where the number of terms to sum can reach 1,000,000.
 **Learning:** Even when each term is relatively fast to compute, 1,000,000 calls to a complex function like `lstirling` (which involves root-finding) can lead to significant processing delays. Since the total probability sum is 1, calculating the "complementary" tail when it's shorter reduces the worst-case computation by 50%.
 **Prevention:** Implement "short-tail" summation logic by choosing the shorter of the two ranges (1...k vs k+1...n) and using the relation P(X <= k) = 1 - P(X > k). Combine this with `base::sort()` on values before summation to maintain numerical precision.
+
+## 2026-04-22 - Command Injection via R Pipe Connections
+**Vulnerability:** Command injection when using `file()` or `gzfile()` with untrusted input strings starting with the pipe character `|`.
+**Learning:** R's core connection functions like `file()` and `gzfile()` interpret any character string starting with `|` as a shell command to be executed. If an attacker controls the file path, they can execute arbitrary shell commands under the R process context.
+**Prevention:** Always validate untrusted file path inputs to ensure they do not start with a pipe character (e.g., using `grepl("^\\s*\\|", path)`). Complement this with `utils::file_test("-f", path)` to ensure the path points to a regular file and not a special file or command.

@@ -28,8 +28,15 @@ hf.readData <- function(fasta_file) {
     base::stop("The 'PopGenome' package is required but not installed.")
   }
 
-  if (base::isTRUE(!base::is.character(fasta_file) || base::length(fasta_file) != 1 || base::is.na(fasta_file))) {
+  if (!base::is.character(fasta_file) || base::isTRUE(base::length(fasta_file) != 1) || base::is.na(fasta_file)) {
     base::stop("fasta_file must be a single character string and not NA")
+  }
+
+  # Security: Prevent R command injection via pipe connections.
+  # R's file() and gzfile() functions will interpret strings starting with '|'
+  # as commands to be executed via the shell.
+  if (base::isTRUE(base::grepl("^\\s*\\|", fasta_file))) {
+    base::stop("fasta_file cannot be a pipe command (potential command injection)")
   }
 
   # Use utils::file_test("-f", ...) to ensure it is a regular file.
@@ -47,6 +54,19 @@ hf.readData <- function(fasta_file) {
     }
 
     fasta_file <- base::normalizePath(fasta_file)
+
+    # Input Validation: For uncompressed files, check for valid FASTA header.
+    # This prevents processing of non-FASTA files that might cause issues.
+    if (base::isTRUE(!base::grepl("\\.gz$", fasta_file, ignore.case = TRUE))) {
+      con <- base::file(fasta_file, "rt")
+      first_line <- base::tryCatch(
+        { base::readLines(con, n = 1) },
+        finally = { base::close(con) }
+      )
+      if (base::isTRUE(base::length(first_line) == 0 || !base::grepl("^>", first_line))) {
+        base::stop(base::paste0("fasta_file ", base::shQuote(base::basename(fasta_file)), " does not appear to be a valid FASTA file (missing '>' header)"))
+      }
+    }
 
     # readData wants a clean directory with sequences
     # get a new subdir in case there are other temp files already.

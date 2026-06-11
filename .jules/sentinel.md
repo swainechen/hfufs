@@ -89,3 +89,8 @@ SENTINEL'S JOURNAL - CRITICAL LEARNINGS ONLY
 **Vulnerability:** Command injection when using `file()` or `gzfile()` with untrusted input strings starting with the pipe character `|`.
 **Learning:** R's core connection functions like `file()` and `gzfile()` interpret any character string starting with `|` as a shell command to be executed. If an attacker controls the file path, they can execute arbitrary shell commands under the R process context.
 **Prevention:** Always validate untrusted file path inputs to ensure they do not start with a pipe character (e.g., using `grepl("^\\s*\\|", path)`). Complement this with `utils::file_test("-f", path)` to ensure the path points to a regular file and not a special file or command.
+
+## 2026-04-23 - Denial of Service (DoS) via readLines() on Maliciously Large Lines
+**Vulnerability:** Memory exhaustion (DoS) when using `base::readLines(con, n = 1)` to validate FASTA headers on untrusted input files.
+**Learning:** `readLines()` attempts to read until it finds a newline character. If an input file is very large (e.g., >2GB) and contains no newlines, R will attempt to load the entire content into memory even when `n = 1` is specified, leading to a process crash.
+**Prevention:** Use `base::readBin(con, "raw", n = 1)` to read exactly one byte (or a fixed small number of bytes) for magic byte or header validation. This ensures constant memory usage regardless of the input file's line length or total size.

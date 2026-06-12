@@ -94,3 +94,8 @@ SENTINEL'S JOURNAL - CRITICAL LEARNINGS ONLY
 **Vulnerability:** Memory exhaustion (DoS) when using `base::readLines(con, n = 1)` to validate FASTA headers on untrusted input files.
 **Learning:** `readLines()` attempts to read until it finds a newline character. If an input file is very large (e.g., >2GB) and contains no newlines, R will attempt to load the entire content into memory even when `n = 1` is specified, leading to a process crash.
 **Prevention:** Use `base::readBin(con, "raw", n = 1)` to read exactly one byte (or a fixed small number of bytes) for magic byte or header validation. This ensures constant memory usage regardless of the input file's line length or total size.
+
+## 2026-04-24 - Denial of Service (DoS) via Invalid Index Range Generation in R
+**Vulnerability:** Application crash (subscript out of bounds) when generating a summation range `(k+1):n` where `k == n`.
+**Learning:** In R, the colon operator `a:b` generates a sequence `c(a, a-1, ..., b)` if `a > b`. When `k == n`, `(k+1):n` becomes `c(n+1, n)`. Attempting to use this sequence to index a matrix or vector of size `n` results in an "out of bounds" error, which can be used to trigger a Denial of Service (DoS) in data processing pipelines.
+**Prevention:** Always explicitly check the relationship between bounds before using the colon operator in indexing contexts. For cumulative statistics, handle the `k == n` edge case separately or ensure the sequence generation logic is robust (e.g., using `if (k < n) (k+1):n else NULL`).

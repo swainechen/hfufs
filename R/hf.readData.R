@@ -55,17 +55,19 @@ hf.readData <- function(fasta_file) {
 
     fasta_file <- base::normalizePath(fasta_file)
 
-    # Input Validation: For uncompressed files, check for valid FASTA header.
-    # This prevents processing of non-FASTA files that might cause issues.
-    if (base::isTRUE(!base::grepl("\\.gz$", fasta_file, ignore.case = TRUE))) {
-      con <- base::file(fasta_file, "rt")
-      first_line <- base::tryCatch(
-        { base::readLines(con, n = 1) },
-        finally = { base::close(con) }
-      )
-      if (base::isTRUE(base::length(first_line) == 0 || !base::grepl("^>", first_line))) {
-        base::stop(base::paste0("fasta_file ", base::shQuote(base::basename(fasta_file)), " does not appear to be a valid FASTA file (missing '>' header)"))
-      }
+    # Input Validation: Check for valid FASTA header ('>') in both compressed and uncompressed files.
+    # This prevents processing of non-FASTA files that might cause issues or DoS.
+    # We read only the first byte using readBin to avoid memory exhaustion from maliciously
+    # long first lines in uncompressed files.
+    is_gz <- base::grepl("\\.gz$", fasta_file, ignore.case = TRUE)
+    con <- if (base::isTRUE(is_gz)) base::gzfile(fasta_file, "rb") else base::file(fasta_file, "rb")
+    first_byte <- base::tryCatch(
+      { base::readBin(con, "raw", n = 1) },
+      finally = { base::close(con) }
+    )
+    # 0x3e is the hex code for ASCII character '>'
+    if (base::isTRUE(base::length(first_byte) == 0 || first_byte != base::as.raw(0x3e))) {
+      base::stop(base::paste0("fasta_file ", base::shQuote(base::basename(fasta_file)), " does not appear to be a valid FASTA file (missing '>' header)"))
     }
 
     # readData wants a clean directory with sequences

@@ -75,12 +75,15 @@ hstrobecks <- function(n, k, theta) {
           base::abs(s_n[n, i]) * theta**i
         }, FUN.VALUE = 0.0)
         Ss <- base::sum(base::sort(vals)) / Sn
-      } else {
+      } else if (base::isTRUE(k < n)) {
         indices <- (k + 1):n
         vals <- base::vapply(indices, function(i) {
           base::abs(s_n[n, i]) * theta**i
         }, FUN.VALUE = 0.0)
         Ss <- 1 - (base::sum(base::sort(vals)) / Sn)
+      } else {
+        # k == n, so Ss must be 1. This also avoids (n+1):n crash.
+        Ss <- 1
       }
       if (base::isTRUE(!base::is.nan(Ss) && !base::is.infinite(Ss))) {
         return(Ss)
@@ -100,12 +103,15 @@ hstrobecks <- function(n, k, theta) {
       base::exp(lstirling(n, i) + i * base::log(theta) - lSn)
     }, FUN.VALUE = 0.0)
     Ss <- base::sum(base::sort(vals))
-  } else {
+  } else if (base::isTRUE(k < n)) {
     indices <- (k + 1):n
     vals <- base::vapply(indices, function(i) {
       base::exp(lstirling(n, i) + i * base::log(theta) - lSn)
     }, FUN.VALUE = 0.0)
     Ss <- 1 - base::sum(base::sort(vals))
+  } else {
+    # k == n
+    Ss <- 1
   }
 
   return(Ss)

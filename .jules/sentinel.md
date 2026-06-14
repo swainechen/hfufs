@@ -99,3 +99,8 @@ SENTINEL'S JOURNAL - CRITICAL LEARNINGS ONLY
 **Vulnerability:** Application crash (subscript out of bounds) when generating a summation range `(k+1):n` where `k == n`.
 **Learning:** In R, the colon operator `a:b` generates a sequence `c(a, a-1, ..., b)` if `a > b`. When `k == n`, `(k+1):n` becomes `c(n+1, n)`. Attempting to use this sequence to index a matrix or vector of size `n` results in an "out of bounds" error, which can be used to trigger a Denial of Service (DoS) in data processing pipelines.
 **Prevention:** Always explicitly check the relationship between bounds before using the colon operator in indexing contexts. For cumulative statistics, handle the `k == n` edge case separately or ensure the sequence generation logic is robust (e.g., using `if (k < n) (k+1):n else NULL`).
+
+## 2026-04-25 - Numerical Instability and Fail-Secure Fallback in Asymptotic Approximations
+**Vulnerability:** Potential for `NaN` propagation or logic errors when asymptotic approximations of probabilities (like those used in Fu's Fs) yield values outside the valid (0, 1) range due to floating-point precision limits.
+**Learning:** Asymptotic approximations are faster but can fail numerically at certain parameter boundaries. Relying solely on these without validation can lead to incorrect statistical results or application instability.
+**Prevention:** Always validate that approximate probability values are finite and strictly within the valid range (0, 1) before performing further operations like logit transformations. Implement a "fail-secure" fallback to an exact, albeit slower, calculation method (e.g., `hfufs`) when approximations fail. Ensure that any decremented parameters are correctly restored when calling the fallback function.

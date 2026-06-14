@@ -40,9 +40,6 @@ afufs <- function(n, k, theta) {
     base::stop("n and k must be <= 1,000,000 to prevent resource exhaustion")
   }
 
-  # Store original values for potential fallback
-  n_orig <- n
-  k_orig <- k
 
   # Strobeck's S is prob of k alleles or fewer, Fu's Sp is k alleles or greater
   # if k == 0 or 1, then Fu's Sp is 1, logit (Sp) is infinity
@@ -54,7 +51,7 @@ afufs <- function(n, k, theta) {
     return(-Inf)
   }
   if (base::isTRUE(k == n)) {
-    return(hfufs(n_orig, k_orig, theta))
+    return(hfufs(n, k, theta))
   }
 
   # we derive this as S'_(n+1),(k+1)(theta) - so decrement n, k first
@@ -69,7 +66,9 @@ afufs <- function(n, k, theta) {
     warning = function(w) { return(theta) },
     error = function(e) { return(theta) }
   )
-  if (base::isTRUE(base::all.equal(z0, theta)) || !base::is.finite(z0)) { return(hfufs(n_orig, k_orig, theta)) }
+  if (base::isTRUE(base::all.equal(z0, theta)) || !base::is.finite(z0)) {
+    return(hfufs(n + 1, k + 1, theta))
+  }
   t0 <- k/(n-k)
   B <- phi(z0) - chi(t0)
   chitau <- phi(theta) - B
@@ -99,12 +98,25 @@ afufs <- function(n, k, theta) {
     warning = function(w) { return(NULL) },
     error = function(e) { return(NULL) }
   )
-  if (base::isTRUE(base::is.null(tau) || !base::is.finite(tau))) { return(hfufs(n_orig, k_orig, theta)) }
+  if (base::isTRUE(base::is.null(tau) || !base::is.finite(tau))) {
+    return(hfufs(n + 1, k + 1, theta))
+  }
   f_t0 <- 1/(z0 - theta) * base::sqrt(chiprimeprime(t0) / (base::trigamma(z0+n+1) - base::trigamma(z0+1) + k/z0/z0))
   G0 <- f_t0 - 1/(t0 - tau)
   temp <- base::exp(base::lchoose(n, k-1) - chitau)
-  Sprime <- stats::pbeta(tau/(1+tau), k, n-k+1) + temp * G0
-  Tprime <- stats::pbeta(1/(1+tau), n-k+1, k) - temp * G0
+  Sprime <- stats::pbeta(tau / (1 + tau), k, n - k + 1) + temp * G0
+  Tprime <- stats::pbeta(1 / (1 + tau), n - k + 1, k) - temp * G0
+
+  # Security: Defensive check to ensure the asymptotic approximation results in a
+  # valid probability (finite and between 0 and 1). Numerical instability in
+  # G0 or temp can occasionally lead to values outside this range.
+  if (base::isTRUE(!base::is.finite(Sprime) || Sprime <= 0 || Sprime >= 1 ||
+      !base::is.finite(Tprime) || Tprime <= 0 || Tprime >= 1)) {
+    # Fall back to hfufs using the original n and k values.
+    # Since n and k were decremented by 1 earlier, we restore them for the call.
+    return(hfufs(n + 1, k + 1, theta))
+  }
+
   if (base::isTRUE(Sprime < 0.5)) {
     return(base::log(Sprime) - base::log1p(-Sprime))
   } else {

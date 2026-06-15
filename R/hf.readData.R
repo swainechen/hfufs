@@ -95,7 +95,7 @@ hf.readData <- function(fasta_file) {
       orig_basename <- "input.fasta"
     }
 
-    if (base::isTRUE(base::grepl("\\.gz$", fasta_file, ignore.case = TRUE))) {
+    if (base::isTRUE(is_gz)) {
       # Decompress while stripping .gz extension
       decompressed_basename <- base::sub("\\.gz$", "", orig_basename, ignore.case = TRUE)
       if (base::isTRUE(decompressed_basename == "" || decompressed_basename == "." || decompressed_basename == "..")) {

@@ -62,10 +62,10 @@ lstirling <- function(n, m) {
       }
     )
 
-    if (base::isTRUE(base::is.null(x0_res))) {
-      # Fallback or error if uniroot fails
-      base::warning("uniroot failed to converge in lstirling")
-      return(NaN)
+    if (base::isTRUE(base::is.null(x0_res) || !base::is.finite(x0_res))) {
+      # Fallback or error if uniroot fails or returns non-finite value
+      base::warning("uniroot failed to converge or returned non-finite value in lstirling")
+      return(base::NaN)
     }
     x0 <- x0_res
     t0 <- m / (n - m)

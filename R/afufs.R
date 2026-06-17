@@ -66,7 +66,7 @@ afufs <- function(n, k, theta) {
     warning = function(w) { return(theta) },
     error = function(e) { return(theta) }
   )
-  if (base::isTRUE(base::all.equal(z0, theta)) || !base::is.finite(z0)) {
+  if (base::isTRUE(base::all.equal(z0, theta)) || base::isTRUE(!base::is.finite(z0))) {
     return(hfufs(n + 1, k + 1, theta))
   }
   t0 <- k/(n-k)

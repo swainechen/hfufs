@@ -104,3 +104,8 @@ SENTINEL'S JOURNAL - CRITICAL LEARNINGS ONLY
 **Vulnerability:** Potential for `NaN` propagation or logic errors when asymptotic approximations of probabilities (like those used in Fu's Fs) yield values outside the valid (0, 1) range due to floating-point precision limits.
 **Learning:** Asymptotic approximations are faster but can fail numerically at certain parameter boundaries. Relying solely on these without validation can lead to incorrect statistical results or application instability.
 **Prevention:** Always validate that approximate probability values are finite and strictly within the valid range (0, 1) before performing further operations like logit transformations. Implement a "fail-secure" fallback to an exact, albeit slower, calculation method (e.g., `hfufs`) when approximations fail. Ensure that any decremented parameters are correctly restored when calling the fallback function.
+
+## 2026-05-24 - Application Crash (DoS) via Incorrect Namespace Qualification of Reserved Constants
+**Vulnerability:** Denial of Service (DoS) during error handling paths due to incorrect use of `base::` prefix on reserved constants like `NaN`.
+**Learning:** In R, reserved constants and language literals (NaN, Inf, NULL, TRUE, FALSE, NA) are NOT standard exported objects from the `base` namespace. Attempting to access them as `base::NaN` results in a runtime error (`'NaN' is not an exported object from 'namespace:base'`), which crashes the application instead of allowing it to fail gracefully.
+**Prevention:** Never prefix R reserved constants or language literals with a namespace. Use them as standalone literals (e.g., `NaN` instead of `base::NaN`) to ensure robustness in critical error-handling and fail-safe recovery paths.

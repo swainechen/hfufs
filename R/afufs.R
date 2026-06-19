@@ -12,6 +12,7 @@
 #' This contrasts with `hfufs` which uses a Stirling number approximator for
 #' each term. `afufs` is therefore simultaneously more accurate and faster.
 #'
+#' @usage afufs(n, k, theta)
 #' @param n The number of total sequences/individuals
 #' @param k The number of unique alleles
 #' @param theta The average pairwise nucleotide divergence

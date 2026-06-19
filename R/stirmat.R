@@ -14,6 +14,7 @@
 #' `stirmat` is a direct port of the code from James Cai's PGEToolbox, which
 #' was originally written for Matlab.
 #'
+#' @usage stirmat(n, m)
 #' @param n The first parameter for Stirling numbers
 #' @param m The second parameter for Stirling numbers
 #' @return A matrix with n rows and m columns, the elements of which are

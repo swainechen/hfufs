@@ -4,6 +4,7 @@
 #' kind. This is useful because for larger parameter values, these Stirling
 #' numbers can overflow the floating point range.
 #'
+#' @usage lstirling(n, m)
 #' @param n The first parameter (subscript in the notation used in Temme 1993)
 #' @param m The second parameter (superscript in parentheses in the notation
 #' used in Temme 1993)

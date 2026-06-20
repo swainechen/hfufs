@@ -12,6 +12,7 @@
 #' enough, or using a logarithmic estimator for Stirling numbers implemented
 #' in the lstirling function.
 #'
+#' @usage hfufs(n, k, theta)
 #' @param n The number of total sequences/individuals
 #' @param k The number of unique alleles
 #' @param theta The average pairwise nucleotide divergence

@@ -16,6 +16,7 @@
 #' switching to a logarithmic esimator for Stirling numbers (implemented in the
 #' lstirling function) when needed to avoid overflow errors.
 #'
+#' @usage hstrobecks(n, k, theta)
 #' @param n The number of total sequences/individuals
 #' @param k The number of unique alleles
 #' @param theta The average pairwise nucleotide divergence

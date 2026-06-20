@@ -12,7 +12,7 @@
 #'
 #' Note this will load the PopGenome package if needed.
 #'
-#'
+#' @usage hf.readData(fasta_file)
 #' @export
 #'
 #' @examples

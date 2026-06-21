@@ -165,22 +165,27 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
       # return structures from PopGenome.
       n$n.sequences <- base::vapply(h_list, function(reg) {
         if (base::isTRUE(base::is.null(reg) || base::length(reg) < 1 || base::is.null(reg[[1]]))) return(0.0)
-        base::sum(reg[[1]])
+        base::sum(base::as.numeric(base::unlist(reg[[1]])))
       }, FUN.VALUE = 0.0)
       n$n.haplotypes <- base::vapply(h_list, function(reg) {
         if (base::isTRUE(base::is.null(reg) || base::length(reg) < 1 || base::is.null(reg[[1]]))) return(0.0)
         x <- reg[[1]]
         nc <- base::ncol(x)
-        if (base::isTRUE(base::is.null(nc))) return(base::as.numeric(base::length(base::which(x > 0))))
+        if (base::isTRUE(base::is.null(nc))) {
+          # Use unlist() to safely handle potential list structures returned by PopGenome
+          # and prevent coercion crashes in which() and length().
+          ux <- base::as.numeric(base::unlist(x))
+          return(base::as.numeric(base::length(base::which(ux > 0))))
+        }
         return(base::as.numeric(nc))
       }, FUN.VALUE = 0.0)
       n$n.singleton.haplotypes <- base::vapply(h_list, function(reg) {
         if (base::isTRUE(base::is.null(reg) || base::length(reg) < 1 || base::is.null(reg[[1]]))) return(0.0)
-        base::as.numeric(base::length(base::which(reg[[1]] == 1)))
+        base::as.numeric(base::length(base::which(base::as.numeric(base::unlist(reg[[1]])) == 1)))
       }, FUN.VALUE = 0.0)
       n$n.consensus.haplotypes <- base::vapply(h_list, function(reg) {
         if (base::isTRUE(base::is.null(reg) || base::length(reg) < 1 || base::is.null(reg[[1]]) || base::length(reg[[1]]) == 0)) return(0.0)
-        base::as.numeric(base::max(reg[[1]]))
+        base::as.numeric(base::max(base::as.numeric(base::unlist(reg[[1]]))))
       }, FUN.VALUE = 0.0)
       for(i in base::which(base::is.na(n$Fu.F_S))) {
         n$Fu.F_S[i] <- base::tryCatch(
@@ -229,22 +234,27 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
       # return structures from PopGenome.
       n$n.sequences <- base::vapply(h_list, function(reg) {
         if (base::isTRUE(base::is.null(reg) || base::length(reg) < 1 || base::is.null(reg[[1]]))) return(0.0)
-        base::sum(reg[[1]])
+        base::sum(base::as.numeric(base::unlist(reg[[1]])))
       }, FUN.VALUE = 0.0)
       n$n.haplotypes <- base::vapply(h_list, function(reg) {
         if (base::isTRUE(base::is.null(reg) || base::length(reg) < 1 || base::is.null(reg[[1]]))) return(0.0)
         x <- reg[[1]]
         nc <- base::ncol(x)
-        if (base::isTRUE(base::is.null(nc))) return(base::as.numeric(base::length(base::which(x > 0))))
+        if (base::isTRUE(base::is.null(nc))) {
+          # Use unlist() to safely handle potential list structures returned by PopGenome
+          # and prevent coercion crashes in which() and length().
+          ux <- base::as.numeric(base::unlist(x))
+          return(base::as.numeric(base::length(base::which(ux > 0))))
+        }
         return(base::as.numeric(nc))
       }, FUN.VALUE = 0.0)
       n$n.singleton.haplotypes <- base::vapply(h_list, function(reg) {
         if (base::isTRUE(base::is.null(reg) || base::length(reg) < 1 || base::is.null(reg[[1]]))) return(0.0)
-        base::as.numeric(base::length(base::which(reg[[1]] == 1)))
+        base::as.numeric(base::length(base::which(base::as.numeric(base::unlist(reg[[1]])) == 1)))
       }, FUN.VALUE = 0.0)
       n$n.consensus.haplotypes <- base::vapply(h_list, function(reg) {
         if (base::isTRUE(base::is.null(reg) || base::length(reg) < 1 || base::is.null(reg[[1]]) || base::length(reg[[1]]) == 0)) return(0.0)
-        base::as.numeric(base::max(reg[[1]]))
+        base::as.numeric(base::max(base::as.numeric(base::unlist(reg[[1]]))))
       }, FUN.VALUE = 0.0)
       for(i in base::which(base::is.na(n$Fu.F_S))) {
         n$Fu.F_S[i] <- base::tryCatch(

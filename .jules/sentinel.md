@@ -109,3 +109,8 @@ SENTINEL'S JOURNAL - CRITICAL LEARNINGS ONLY
 **Vulnerability:** Denial of Service (DoS) during error handling paths due to incorrect use of `base::` prefix on reserved constants like `NaN`.
 **Learning:** In R, reserved constants and language literals (NaN, Inf, NULL, TRUE, FALSE, NA) are NOT standard exported objects from the `base` namespace. Attempting to access them as `base::NaN` results in a runtime error (`'NaN' is not an exported object from 'namespace:base'`), which crashes the application instead of allowing it to fail gracefully.
 **Prevention:** Never prefix R reserved constants or language literals with a namespace. Use them as standalone literals (e.g., `NaN` instead of `base::NaN`) to ensure robustness in critical error-handling and fail-safe recovery paths.
+
+## 2026-06-22 - S4 Class Spoofing and Safe Slot Access in R
+**Vulnerability:** Application crash or unexpected behavior when S3 objects "spoof" an S4 class, leading to failed slot access via the `@` operator.
+**Learning:** In R, S3 objects can easily mimic a class by setting the `class` attribute. If a function assumes an input is a formal S4 object and attempts to access its slots using `@`, it will error if the object is actually S3.
+**Prevention:** Always validate that an object is a formal S4 object using `base::isS4()` in addition to class membership checks like `base::inherits()` before using the `@` operator. This ensures type safety and prevents "type confusion" style crashes.

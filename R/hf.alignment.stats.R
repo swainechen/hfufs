@@ -31,7 +31,8 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
   }
 
   # Check if go is a GENOME object safely
-  if (base::isTRUE(!base::inherits(go, "GENOME"))) {
+  # We ensure it is a genuine S4 object before using S4 slot accessors (@)
+  if (base::isTRUE(!base::isS4(go) || !base::inherits(go, "GENOME"))) {
     base::stop("go must be a PopGenome GENOME object")
   }
 

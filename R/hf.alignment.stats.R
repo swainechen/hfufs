@@ -27,11 +27,12 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
 
   # Input validation
   if (base::isTRUE(base::missing(go))) {
-    base::stop("go must be provided")
+    base::stop("go must be provided and must be a PopGenome GENOME object")
   }
 
-  # Check if go is a GENOME object safely
-  # We ensure it is a genuine S4 object before using S4 slot accessors (@)
+  # Security: Check if go is an S4 GENOME object safely.
+  # We use isS4() in addition to inherits() to prevent class spoofing (S3 objects
+  # pretending to be S4) and ensure safe access to S4 slots using the '@' operator.
   if (base::isTRUE(!base::isS4(go) || !base::inherits(go, "GENOME"))) {
     base::stop("go must be a PopGenome GENOME object")
   }

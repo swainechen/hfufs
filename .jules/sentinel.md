@@ -114,3 +114,8 @@ SENTINEL'S JOURNAL - CRITICAL LEARNINGS ONLY
 **Vulnerability:** Application crash or unexpected behavior when S3 objects "spoof" an S4 class, leading to failed slot access via the `@` operator.
 **Learning:** In R, S3 objects can easily mimic a class by setting the `class` attribute. If a function assumes an input is a formal S4 object and attempts to access its slots using `@`, it will error if the object is actually S3.
 **Prevention:** Always validate that an object is a formal S4 object using `base::isS4()` in addition to class membership checks like `base::inherits()` before using the `@` operator. This ensures type safety and prevents "type confusion" style crashes.
+
+## 2026-06-23 - Command Injection via Trailing Pipe in R Connections
+**Vulnerability:** Command injection in `base::file()` and `base::gzfile()` via filenames ending with a pipe character `|`.
+**Learning:** While leading pipes are the most common way to trigger R's pipe connection feature, trailing pipes are also supported and can be used for command injection. A security check that only validates the start of a string is insufficient.
+**Prevention:** Use a regular expression that checks for the pipe character at both the beginning and the end of the input string (`^\\s*\\||\\|\\s*$`) before passing it to functions that open connections.

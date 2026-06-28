@@ -36,7 +36,7 @@ hf.readData <- function(fasta_file) {
   # R's file() and gzfile() functions will interpret strings starting or ending
   # with '|' as commands to be executed via the shell.
   if (base::isTRUE(base::grepl("^\\s*\\||\\|\\s*$", fasta_file))) {
-    base::stop("fasta_file cannot be a pipe command (potential command injection)")
+    base::stop(base::paste0("fasta_file ", base::shQuote(base::basename(fasta_file)), " cannot be a pipe command (potential command injection)"))
   }
 
   # Use utils::file_test("-f", ...) to ensure it is a regular file.
@@ -57,16 +57,36 @@ hf.readData <- function(fasta_file) {
 
     # Input Validation: Check for valid FASTA header ('>') in both compressed and uncompressed files.
     # This prevents processing of non-FASTA files that might cause issues or DoS.
-    # We read only the first byte using readBin to avoid memory exhaustion from maliciously
-    # long first lines in uncompressed files.
+    # We read a small chunk (1024 bytes) to allow for leading UTF-8 BOM or whitespace
+    # while maintaining DoS protection against maliciously long first lines.
     is_gz <- base::grepl("\\.gz$", fasta_file, ignore.case = TRUE)
     con <- if (base::isTRUE(is_gz)) base::gzfile(fasta_file, "rb") else base::file(fasta_file, "rb")
-    first_byte <- base::tryCatch(
-      { base::readBin(con, "raw", n = 1) },
+    header_chunk <- base::tryCatch(
+      { base::readBin(con, "raw", n = 1024) },
       finally = { base::close(con) }
     )
+
+    if (base::isTRUE(base::length(header_chunk) == 0)) {
+      base::stop(base::paste0("fasta_file ", base::shQuote(base::basename(fasta_file)), " is empty"))
+    }
+
     # 0x3e is the hex code for ASCII character '>'
-    if (base::isTRUE(base::length(first_byte) == 0 || first_byte != base::as.raw(0x3e))) {
+    # 0xef 0xbb 0xbf is the UTF-8 Byte Order Mark (BOM)
+    start_idx <- 1
+    if (base::isTRUE(base::length(header_chunk) >= 3 &&
+                     header_chunk[1] == base::as.raw(0xef) &&
+                     header_chunk[2] == base::as.raw(0xbb) &&
+                     header_chunk[3] == base::as.raw(0xbf))) {
+      start_idx <- 4
+    }
+
+    # Skip leading whitespace (space, tab, newline, carriage return)
+    whitespace_bytes <- base::as.raw(base::c(0x20, 0x09, 0x0a, 0x0d))
+    while (base::isTRUE(start_idx <= base::length(header_chunk) && header_chunk[start_idx] %in% whitespace_bytes)) {
+      start_idx <- start_idx + 1
+    }
+
+    if (base::isTRUE(start_idx > base::length(header_chunk) || header_chunk[start_idx] != base::as.raw(0x3e))) {
       base::stop(base::paste0("fasta_file ", base::shQuote(base::basename(fasta_file)), " does not appear to be a valid FASTA file (missing '>' header)"))
     }
 
@@ -116,7 +136,7 @@ hf.readData <- function(fasta_file) {
             if (base::isTRUE(base::length(chunk) == 0)) break
             total_bytes <- total_bytes + base::length(chunk)
             if (base::isTRUE(total_bytes > max_size)) {
-              base::stop("Decompressed file exceeds 2GB limit (DoS protection)")
+              base::stop(base::paste0("Decompressed file for ", base::shQuote(base::basename(fasta_file)), " exceeds 2GB limit (DoS protection)"))
             }
             base::writeBin(chunk, con_out)
           }
@@ -142,7 +162,7 @@ hf.readData <- function(fasta_file) {
         PopGenome::readData(hf.tempdir)
       },
       error = function(e) {
-        base::warning("Error running PopGenome::readData - maybe check if PopGenome is installed")
+        base::warning(base::paste0("Error running PopGenome::readData for ", base::shQuote(base::basename(fasta_file)), " - maybe check if PopGenome is installed"))
         return(NULL)
       }
     )

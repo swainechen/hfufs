@@ -33,9 +33,9 @@ hf.readData <- function(fasta_file) {
   }
 
   # Security: Prevent R command injection via pipe connections.
-  # R's file() and gzfile() functions will interpret strings starting with '|'
-  # as commands to be executed via the shell.
-  if (base::isTRUE(base::grepl("^\\s*\\|", fasta_file))) {
+  # R's file() and gzfile() functions will interpret strings starting or ending
+  # with '|' as commands to be executed via the shell.
+  if (base::isTRUE(base::grepl("^\\s*\\||\\|\\s*$", fasta_file))) {
     base::stop("fasta_file cannot be a pipe command (potential command injection)")
   }
 
@@ -72,7 +72,7 @@ hf.readData <- function(fasta_file) {
 
     # readData wants a clean directory with sequences
     # get a new subdir in case there are other temp files already.
-    # We check the R version as tempdir(check = TRUE) was introduced in R 4.0.0.
+    # We check the R version as base::tempdir(check = TRUE) was introduced in R 4.0.0.
     hf.tempdir_root <- if (base::isTRUE(base::getRversion() >= "4.0.0")) base::tempdir(check = TRUE) else base::tempdir()
     hf.tempdir <- base::tempfile(tmpdir = hf.tempdir_root)
     iter <- 0

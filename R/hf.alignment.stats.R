@@ -31,7 +31,7 @@ hf.alignment.stats <- function(go, slide=FALSE, window=1000, step=500) {
   }
 
   # Security: Check if go is an S4 GENOME object safely.
-  # We use isS4() in addition to inherits() to prevent class spoofing (S3 objects
+  # We use base::isS4() in addition to base::inherits() to prevent class spoofing (S3 objects
   # pretending to be S4) and ensure safe access to S4 slots using the '@' operator.
   if (base::isTRUE(!base::isS4(go) || !base::inherits(go, "GENOME"))) {
     base::stop("go must be a PopGenome GENOME object")

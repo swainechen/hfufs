@@ -119,3 +119,8 @@ SENTINEL'S JOURNAL - CRITICAL LEARNINGS ONLY
 **Vulnerability:** Command injection in `base::file()` and `base::gzfile()` via filenames ending with a pipe character `|`.
 **Learning:** While leading pipes are the most common way to trigger R's pipe connection feature, trailing pipes are also supported and can be used for command injection. A security check that only validates the start of a string is insufficient.
 **Prevention:** Use a regular expression that checks for the pipe character at both the beginning and the end of the input string (`^\\s*\\||\\|\\s*$`) before passing it to functions that open connections.
+
+## 2026-06-24 - Command Injection Bypass via Extension Stripping in R
+**Vulnerability:** Command injection in `base::file()` when extensions (like `.gz`) are stripped from filenames, potentially revealing a trailing pipe that was previously hidden.
+**Learning:** A filename like `cmd|.gz` does not end with a pipe and may pass initial validation. However, if the application strips the `.gz` extension to create a temporary file, the resulting name `cmd|` becomes a command injection vector when passed to R connection functions.
+**Prevention:** Always re-validate filenames using anchored pipe-check regexes (`^\\s*\\||\\|\\s*$`) after any string manipulation or extension stripping, especially before passing the results to functions that open file connections.

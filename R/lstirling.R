@@ -17,7 +17,7 @@
 #' @examples
 #' n <- 10
 #' m <- 5
-#' exp(lstirling(n, m))
+#' base::exp(lstirling(n, m))
 #' # 267854.5
 #'
 lstirling <- function(n, m) {
@@ -40,8 +40,8 @@ lstirling <- function(n, m) {
     # the stirling number is 0 if m = 0 and n > 0
     return(-Inf)
   } else if (base::isTRUE(m == 1 && n >= 1)) {
-    # this ends up being (n-1)!, approx with log(x!) ~= x(log x) - x + 1
-    # R has something built in - just use lgamma(n)
+    # this ends up being (n-1)!, approx with base::log(x!) ~= x(base::log(x)) - x + 1
+    # R has something built in - just use base::lgamma(n)
     return(base::lgamma(n))
   } else if (base::isTRUE(n == m)) {
     return(0)

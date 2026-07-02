@@ -115,11 +115,21 @@ hf.readData <- function(fasta_file) {
       orig_basename <- "input.fasta"
     }
 
+    # Security: Ensure basename does not contain pipe characters to prevent command injection.
+    if (base::isTRUE(base::grepl("^\\s*\\||\\|\\s*$", orig_basename))) {
+      base::stop(base::paste0("Invalid filename ", base::shQuote(orig_basename), ": contains pipe characters (potential command injection)"))
+    }
+
     if (base::isTRUE(is_gz)) {
       # Decompress while stripping .gz extension
       decompressed_basename <- base::sub("\\.gz$", "", orig_basename, ignore.case = TRUE)
       if (base::isTRUE(decompressed_basename == "" || decompressed_basename == "." || decompressed_basename == "..")) {
         decompressed_basename <- "input.fasta"
+      }
+
+      # Security: Re-validate after stripping .gz to prevent command injection (e.g. "cmd|.gz")
+      if (base::isTRUE(base::grepl("^\\s*\\||\\|\\s*$", decompressed_basename))) {
+        base::stop(base::paste0("Invalid decompressed filename ", base::shQuote(decompressed_basename), ": contains pipe characters (potential command injection)"))
       }
       hf.tempfile <- base::file.path(hf.tempdir, decompressed_basename)
 

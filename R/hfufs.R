@@ -89,7 +89,7 @@ hfufs <- function(n, k, theta) {
 
   # use log approximations to calculate Fu's Fs
   # this is a fallback in case previous calculation hit infinity or for larger n
-  # We use lgamma to avoid large vector allocation for 0:(n-1)
+  # We use base::lgamma to avoid large vector allocation for 0:(n-1)
   lSn <- base::lgamma(theta + n) - base::lgamma(theta)
 
   # Choose the shorter range to minimize iterations and calls to lstirling (DoS protection).
@@ -101,7 +101,7 @@ hfufs <- function(n, k, theta) {
       base::exp(lstirling(n, i) + i * base::log(theta) - lSn)
     }, FUN.VALUE = 0.0)
     S <- base::sum(base::sort(vals))
-    # logit(Sp) = log(Sp) - log(1-Sp) = log(1-S) - log(S)
+    # logit(Sp) = base::log(Sp) - base::log1p(-Sp) = base::log1p(-S) - base::log(S)
     return(base::log1p(-S) - base::log(S))
   } else {
     # Range k:n is shorter
